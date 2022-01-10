@@ -1,0 +1,3 @@
+pywinauto
+PySimpleGUI
+pygame
