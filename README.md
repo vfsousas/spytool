@@ -6,7 +6,7 @@ Due to the lack of good analyzers for screen elements for windows applications, 
 ## The structure
 This projects was build using pywinauto to get all windows elements, for the UI is used the lib PySimpleGUI and PyGame (used only to create a rectangle in the screen)
 
-<img  src="media/UI.png"  width=700  height=400>
+<img  src="media/UI.png"  width=402  height=425>
 
 ## See the video
 [here](media/SpyTool.mp4)
