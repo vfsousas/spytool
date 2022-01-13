@@ -9,7 +9,7 @@ This projects was build using pywinauto to get all windows elements, for the UI 
 <img  src="media/UI.png"  width=402  height=425>
 
 ## See the tool execution in animation bellow
-<img  src="media/example.gif" width=800  height=600>
+<img  src="media/example.gif" width=800  height=500>
 _Thanks to [PySimpleGUI](https://github.com/PySimpleGUI) for the gif animation._
 
 
