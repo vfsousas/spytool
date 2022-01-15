@@ -12,7 +12,7 @@ This projects was build using pywinauto to get all windows elements, for the UI 
 
 <img  src="media/UI.png"  width=402  height=425>
 
-## See the tool execution in animation bellow
+## See the tool execution in animation below
 
 <img  src="media/example.gif" width=800  height=500>
 
