@@ -280,7 +280,7 @@ class AtlasSpy():
         windows = self.getWindows()
         treedata: sg.TreeData = sg.TreeData()
         tree = sg.Tree(treedata, key='-TREE-',  headings=[
-                       'Elements          ', ], col0_width=30, num_rows=33, auto_size_columns=False, show_expanded=True,  enable_events=True)
+                       'Elements          ', ], col0_width=30, num_rows=30, auto_size_columns=False, show_expanded=True,  enable_events=True)
         lay = [[
                 sg.Column([
                     [sg.Text("Windows List"), sg.Combo(windows, size=(
@@ -296,8 +296,9 @@ class AtlasSpy():
                     [sg.Text("_________________________________________________________")],
                     [sg.Text("Application: ", font=('Arial', 10, 'bold')), sg.Text("", key='-appname-', font=('Arial', 10))],                   
                     [sg.Text("Total of elements:", font=('Arial', 10, 'bold')), sg.Text("0", key='-elcount-', font=('Arial', 10))]   ,
-                    [sg.Text("Time to find all locators:", font=('Arial', 10, 'bold')), sg.Text("00:00:00", key='-eltime-', font=('Arial', 10))]                   
-                
+                    [sg.Text("Time to find all locators:", font=('Arial', 10, 'bold')), sg.Text("00:00:00", key='-eltime-', font=('Arial', 10))] ,                  
+                    [sg.Text("_________________________________________________________")],                
+                    [sg.Text("Version:", font=('Arial', 10, 'bold')), sg.Text("1.1", font=('Arial', 10))]                   
                 ]
                 )]]
         window = sg.Window(title="SpyTool", layout=lay,  keep_on_top=True,
