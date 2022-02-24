@@ -6,6 +6,7 @@
 #------------------------------------------------------------------------------
 
 
+import datetime
 from pywinauto import Desktop
 import pywinauto
 from pywinauto import mouse
@@ -20,6 +21,10 @@ import sys
 import win32api
 import win32con
 import win32gui
+import pyperclip as pc
+from time import perf_counter
+
+
 
 
 class AtlasSpy():
@@ -33,6 +38,7 @@ class AtlasSpy():
         user32 = ctypes.windll.user32
         self.screensize = user32.GetSystemMetrics(
             0), user32.GetSystemMetrics(1)
+        self.elementsCount = 0
         # self.drawRect()
 
     def drawRect(self, rect: dict) -> None:
@@ -93,13 +99,17 @@ class AtlasSpy():
         Returns:
             dict:  Locators converted to a list
         """
+        self.elementsCount +=1
         localLocator = {}
         if element.element_info.automation_id != '':
             localLocator = {**localLocator,
                             'auto_id': element.element_info.automation_id}
+        if "ChartCtrl" in element.element_info.automation_id:
+            print("chartControl")
+            
         if element.friendly_class_name() != '':
             localLocator = {**localLocator,
-                            'class_name': element.friendly_class_name()}
+                            'class_name': element.element_info.class_name}
 
         if element.element_info.control_type != '':
             localLocator = {**localLocator,
@@ -136,6 +146,7 @@ class AtlasSpy():
             "id": self.node_id+1,
             "name": element.element_info.name,
             "friendly_class_name": element.friendly_class_name(),
+            "class_name": element.element_info.class_name,
             "is_dialog": element.is_dialog(),
             "automation_id": element.element_info.automation_id,
             "children_texts": element.children_texts(),
@@ -269,7 +280,7 @@ class AtlasSpy():
         windows = self.getWindows()
         treedata: sg.TreeData = sg.TreeData()
         tree = sg.Tree(treedata, key='-TREE-',  headings=[
-                       '', ], auto_size_columns=True, col0_width=35, show_expanded=True,  enable_events=True)
+                       'Elements          ', ], col0_width=30, num_rows=33, auto_size_columns=False, show_expanded=True,  enable_events=True)
         lay = [[
                 sg.Column([
                     [sg.Text("Windows List"), sg.Combo(windows, size=(
@@ -279,11 +290,18 @@ class AtlasSpy():
                      sg.Button("CLICK"), sg.Button("TARGET")],
                     [sg.Text("Locators")],
                     [sg.Multiline(size=(39, 1), key='textbox'),
-                     sg.Button("COPY")]                   
+                     sg.Button("COPY")], 
+                     [sg.Multiline(size=(39, 1), key='writetextbox'),
+                     sg.Button("WRITE")], 
+                    [sg.Text("_________________________________________________________")],
+                    [sg.Text("Application: ", font=('Arial', 10, 'bold')), sg.Text("", key='-appname-', font=('Arial', 10))],                   
+                    [sg.Text("Total of elements:", font=('Arial', 10, 'bold')), sg.Text("0", key='-elcount-', font=('Arial', 10))]   ,
+                    [sg.Text("Time to find all locators:", font=('Arial', 10, 'bold')), sg.Text("00:00:00", key='-eltime-', font=('Arial', 10))]                   
+                
                 ]
                 )]]
         window = sg.Window(title="SpyTool", layout=lay,  keep_on_top=True,
-                           return_keyboard_events=True, location=(self.screensize[0]-400, 0))
+                           return_keyboard_events=True, location=(self.screensize[0]-450, 0),  size=(450, 900), resizable=True)
         while True:
             event, values = window.read()
             if event == '-TREE-':
@@ -291,22 +309,44 @@ class AtlasSpy():
 
             if event == 'TARGET':
                 self.targetEvent(window, tree)
+            
+            if event == 'WRITE':
+                txtbvalue = values['writetextbox']
+                try:
+                    objId = int(values['-TREE-'][0])
+                    self.window_objects[objId][0].set_text(txtbvalue)
+                except Exception as e:
+                    sg.Popup('Select an element in the tree')
+                    pass
+               
 
             if event == 'INSPECT':
+                # Start the counter
+                t1_start = perf_counter()
                 treedata: sg.TreeData = sg.TreeData()
                 desktop = Desktop(backend="uia").windows()
-
                 windows = (
                     [w for w in desktop if values['combo'] in w.window_text()])[0]
                 windows.set_focus()
                 MainForm, locator = self.Wrapper(windows)
                 MainForm = self.children(
                     windows.children(), MainForm, treedata, '')
+                # Stop the counter
+                t1_stop = perf_counter()
                 tree.update(values=treedata)
+                window.Element('-appname-').Update(values['combo'])
+                window.Element('-elcount-').Update(self.elementsCount)
+                window.Element('-eltime-').Update(str(datetime.timedelta(seconds=t1_stop-t1_start)))
+                print("Elapsed time during the whole program in seconds:",
+                                        str(datetime.timedelta(seconds=t1_stop-t1_start)))
 
             if event == 'CLOSE' or event == sg.WIN_CLOSED:
                 pg.quit()
                 sys.exit()
+            
+            if event == 'COPY' or event == sg.WIN_CLOSED:
+                pc.copy(values['textbox'])
+
 
             if event == 'BLINK':
                 objId = int(values['-TREE-'][0])

@@ -23,6 +23,21 @@ This projects was build using pywinauto to get all windows elements, for the UI 
 ## Features
 
 ---
+### Version 1.1
+- Fix 
+    - Resize Window
+    - Tree element column size
+    - button copy
+        - Now is possible to copy the locators to clipboard
+
+- Enhancements
+    - Display info about:
+        - Application name
+        - Total of elements
+        - Total time to locate all elements
+    - Write texts inside pywinauto elements
+
+
 
 ### Version 1.0
 
