@@ -6,6 +6,7 @@
 #------------------------------------------------------------------------------
 
 
+from ctypes.wintypes import tagPOINT
 import datetime
 from pywinauto import Desktop
 import pywinauto
@@ -239,6 +240,23 @@ class AtlasSpy():
                 ui.Element('textbox').Update(item[1]['locators'])
                 break
 
+    def liveEvent(self, ui):
+        """ When user click in the live button, the system will wait for 5 seconds, get mouse position 
+            e get the element in that position e show the locators in the locator box
+
+        Args:
+            ui ([type]): PySimpleGUI textbox element
+        """
+        for _ in range(5):
+            time.sleep(1)
+            
+        x, y = win32api.GetCursorPos()
+        element_from_point = pywinauto.uia_defines.IUIA().iuia.ElementFromPoint(tagPOINT(x, y))
+        element_info = pywinauto.uia_element_info.UIAElementInfo(element_from_point)
+        wrapper = pywinauto.controls.uiawrapper.UIAWrapper(element_info)
+        _, locators  = self.Wrapper(wrapper)
+        ui.Element('textbox').Update(locators)
+        
     def targetEvent(self, ui, tree: sg.Tree):
         """ When the user click in the TARGET button, after 5 seconds the mouse pointer position is discovered.
         With X and Y from the mouse position, a loop thru all elements to find where elements the mouse the be over
@@ -287,7 +305,7 @@ class AtlasSpy():
                         25, 1),  enable_events=True, readonly=True,  key='combo'), sg.Button("INSPECT")],
                     [tree],
                     [sg.Button("BLINK"), sg.Button("FOCUS"),
-                     sg.Button("CLICK"), sg.Button("TARGET")],
+                     sg.Button("CLICK"), sg.Button("TARGET"), sg.Button("LIVE")],
                     [sg.Text("Locators")],
                     [sg.Multiline(size=(39, 1), key='textbox'),
                      sg.Button("COPY")], 
@@ -298,7 +316,7 @@ class AtlasSpy():
                     [sg.Text("Total of elements:", font=('Arial', 10, 'bold')), sg.Text("0", key='-elcount-', font=('Arial', 10))]   ,
                     [sg.Text("Time to find all locators:", font=('Arial', 10, 'bold')), sg.Text("00:00:00", key='-eltime-', font=('Arial', 10))] ,                  
                     [sg.Text("_________________________________________________________")],                
-                    [sg.Text("Version:", font=('Arial', 10, 'bold')), sg.Text("1.1", font=('Arial', 10))]                   
+                    [sg.Text("Version:", font=('Arial', 10, 'bold')), sg.Text("1.2", font=('Arial', 10))]                   
                 ]
                 )]]
         window = sg.Window(title="SpyTool", layout=lay,  keep_on_top=True,
@@ -310,7 +328,10 @@ class AtlasSpy():
 
             if event == 'TARGET':
                 self.targetEvent(window, tree)
-            
+                
+            if event == 'LIVE':
+                self.liveEvent(window)
+                
             if event == 'WRITE':
                 txtbvalue = values['writetextbox']
                 try:
@@ -323,6 +344,7 @@ class AtlasSpy():
 
             if event == 'INSPECT':
                 # Start the counter
+                window.Hide()
                 t1_start = perf_counter()
                 treedata: sg.TreeData = sg.TreeData()
                 desktop = Desktop(backend="uia").windows()
@@ -338,8 +360,8 @@ class AtlasSpy():
                 window.Element('-appname-').Update(values['combo'])
                 window.Element('-elcount-').Update(self.elementsCount)
                 window.Element('-eltime-').Update(str(datetime.timedelta(seconds=t1_stop-t1_start)))
-                print("Elapsed time during the whole program in seconds:",
-                                        str(datetime.timedelta(seconds=t1_stop-t1_start)))
+                window.UnHide()
+
 
             if event == 'CLOSE' or event == sg.WIN_CLOSED:
                 pg.quit()
