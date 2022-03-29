@@ -23,6 +23,13 @@ This projects was build using pywinauto to get all windows elements, for the UI 
 ## Features
 
 ---
+
+### Version 1.2
+- Enhancements
+    - Add LIVE button:
+        - Now is possible to find any object without inspect all window
+         (Click in live button, put the mouse over object, wait 5 seconds)
+
 ### Version 1.1
 - Fix 
     - Resize Window
