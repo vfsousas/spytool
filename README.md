@@ -23,6 +23,11 @@ This projects was build using pywinauto to get all windows elements, for the UI 
 ## Features
 
 ---
+### Version 1.3
+- Enhancements
+    - Add FULL PATH button:
+        - Now is possible to copy all path since the root of object
+         (inpect your window, select a node in a tree, click in FULL PATH button open the notepad/code and past the results)
 
 ### Version 1.2
 - Enhancements
