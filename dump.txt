@@ -1,0 +1,323 @@
+Control Identifiers:
+
+Dialog - 'Info channel - AIRchitect'    (L-8, T-8, R2056, B1112)
+['Info channel - AIRchitect', 'Dialog', 'Info channel - AIRchitectDialog', 'Info channel - AIRchitect0', 'Info channel - AIRchitect1', 'Dialog0', 'Dialog1', 'Info channel - AIRchitectDialog0', 'Info channel - AIRchitectDialog1']
+child_window(title="Info channel - AIRchitect", auto_id="MainForm", control_type="Window")
+   | 
+   | Dialog - 'Info channel - AIRchitect'    (L-8, T-8, R2056, B1112)
+   | ['Info channel - AIRchitect2', 'Dialog2', 'Info channel - AIRchitectDialog2']
+   | child_window(title="Info channel - AIRchitect", control_type="Window")
+   |    | 
+   |    | TabControl - 'The BackstageViewControl'    (L0, T0, R2048, B1104)
+   |    | ['The BackstageViewControl', 'TabControl', 'The BackstageViewControlTabControl', 'TabControl0', 'TabControl1']
+   |    | child_window(title="The BackstageViewControl", auto_id="backstageView", control_type="Tab")
+   |    |    | 
+   |    |    | Pane - 'The BackstageViewClientControl'    (L287, T62, R2048, B1104)
+   |    |    | ['The BackstageViewClientControl', 'Pane', 'The BackstageViewClientControlPane', 'Pane0', 'Pane1']
+   |    |    | child_window(title="The BackstageViewClientControl", auto_id="bvccNew", control_type="Pane")
+   |    |    |    | 
+   |    |    |    | Pane - 'backstageViewTablePanel'    (L287, T62, R2048, B1104)
+   |    |    |    | ['backstageViewTablePanelPane', 'Pane2', 'backstageViewTablePanel']
+   |    |    |    | child_window(title="backstageViewTablePanel", auto_id="backstageViewTablePanel", control_type="Pane")
+   |    |    |    |    | 
+   |    |    |    |    | Pane - ''    (L1703, T66, R2045, B147)
+   |    |    |    |    | ['Pane3', 'Sousa VandersonPane']
+   |    |    |    |    | child_window(auto_id="userNameControl", control_type="Pane")
+   |    |    |    |    |    | 
+   |    |    |    |    |    | Pane - 'The XtraLayoutControl'    (L1703, T66, R2045, B147)
+   |    |    |    |    |    | ['The XtraLayoutControlPane', 'The XtraLayoutControl', 'Pane4']
+   |    |    |    |    |    | child_window(title="The XtraLayoutControl", auto_id="layoutControl1", control_type="Pane")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Static - 'Service'    (L1705, T124, R1961, B145)
+   |    |    |    |    |    |    | ['ServiceStatic', 'Static', 'Service', 'Static0', 'Static1']
+   |    |    |    |    |    |    | child_window(title="Service", auto_id="lblRole", control_type="Text")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Static - ''    (L1705, T99, R1961, B120)
+   |    |    |    |    |    |    | ['Sousa VandersonStatic', 'Static2', 'Sousa VandersonStatic0', 'Sousa VandersonStatic1']
+   |    |    |    |    |    |    | child_window(auto_id="lblEmail", control_type="Text")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Static - 'Sousa Vanderson'    (L1705, T68, R1961, B95)
+   |    |    |    |    |    |    | ['Sousa VandersonStatic2', 'Sousa Vanderson', 'Static3']
+   |    |    |    |    |    |    | child_window(title="Sousa Vanderson", auto_id="lblUserName", control_type="Text")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Pane - 'System.Drawing.Bitmap'    (L1965, T68, R2043, B145)
+   |    |    |    |    |    |    | ['System.Drawing.BitmapPane', 'Pane5', 'System.Drawing.Bitmap']
+   |    |    |    |    |    |    | child_window(title="System.Drawing.Bitmap", auto_id="pictureEditUserIcon", control_type="Pane")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Pane - 'Root'    (L1703, T66, R2045, B147)
+   |    |    |    |    |    |    | ['Pane6', 'Root', 'RootPane']
+   |    |    |    |    |    |    | child_window(title="Root", control_type="Pane")
+   |    |    |    |    | 
+   |    |    |    |    | Static - 'AIRchitect'    (L290, T65, R499, B168)
+   |    |    |    |    | ['Static4', 'AIRchitect', 'AIRchitectStatic', 'AIRchitect0', 'AIRchitect1']
+   |    |    |    |    | child_window(title="AIRchitect", auto_id="lblBackstageviewNewTitle", control_type="Text")
+   |    |    |    |    | 
+   |    |    |    |    | Pane - ''    (L290, T174, R2045, B1101)
+   |    |    |    |    | ['Pane7', 'AIRchitectPane', 'AIRchitectPane0', 'AIRchitectPane1']
+   |    |    |    |    | child_window(auto_id="GalleryOpenNew", control_type="Pane")
+   |    |    |    |    |    | 
+   |    |    |    |    |    | ListBox - 'Gallery'    (L290, T174, R2045, B1101)
+   |    |    |    |    |    | ['Gallery', 'ListBox', 'GalleryListBox', 'ListBox0', 'ListBox1']
+   |    |    |    |    |    | child_window(title="Gallery", auto_id="galleryControl", control_type="List")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Pane - ''    (L291, T175, R2044, B1100)
+   |    |    |    |    |    |    | ['Pane8', 'AIRchitectPane2']
+   |    |    |    |    |    |    | child_window(auto_id="1247756", control_type="Pane")
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | ListBox - 'AIRchitect'    (L291, T175, R2044, B553)
+   |    |    |    |    |    |    | ['ListBox2', 'AIRchitect2', 'AIRchitectListBox']
+   |    |    |    |    |    |    | child_window(title="AIRchitect", control_type="List")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Start new project with logging device'    (L291, T175, R611, B364)
+   |    |    |    |    |    |    |    | ['Start new project with logging device', 'ListItem', 'Start new project with logging deviceListItem', 'ListItem0', 'ListItem1']
+   |    |    |    |    |    |    |    | child_window(title="Start new project with logging device", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Start new project without logging device'    (L611, T175, R931, B364)
+   |    |    |    |    |    |    |    | ['Start new project without logging deviceListItem', 'ListItem2', 'Start new project without logging device']
+   |    |    |    |    |    |    |    | child_window(title="Start new project without logging device", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Start new AIRscan project'    (L931, T175, R1251, B364)
+   |    |    |    |    |    |    |    | ['Start new AIRscan project', 'ListItem3', 'Start new AIRscan projectListItem']
+   |    |    |    |    |    |    |    | child_window(title="Start new AIRscan project", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Start single machine project'    (L1251, T175, R1571, B364)
+   |    |    |    |    |    |    |    | ['Start single machine projectListItem', 'ListItem4', 'Start single machine project']
+   |    |    |    |    |    |    |    | child_window(title="Start single machine project", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Product Selection Tool'    (L1571, T175, R1891, B364)
+   |    |    |    |    |    |    |    | ['Product Selection ToolListItem', 'ListItem5', 'Product Selection Tool']
+   |    |    |    |    |    |    |    | child_window(title="Product Selection Tool", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Training'    (L291, T364, R611, B553)
+   |    |    |    |    |    |    |    | ['Training', 'TrainingListItem', 'ListItem6']
+   |    |    |    |    |    |    |    | child_window(title="Training", control_type="ListItem")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | ListItem - 'Feedback'    (L611, T364, R931, B553)
+   |    |    |    |    |    |    |    | ['FeedbackListItem', 'Feedback', 'ListItem7']
+   |    |    |    |    |    |    |    | child_window(title="Feedback", control_type="ListItem")
+   |    |    | 
+   |    |    | Button - 'Back'    (L21, T20, R51, B50)
+   |    |    | ['BackButton', 'Back', 'Button', 'Button0', 'Button1']
+   |    |    | child_window(title="Back", control_type="Button")
+   |    |    | 
+   |    |    | TabItem - 'New'    (L0, T70, R287, B113)
+   |    |    | ['NewTabItem', 'New', 'TabItem', 'TabItem0', 'TabItem1']
+   |    |    | child_window(title="New", control_type="TabItem")
+   |    |    | 
+   |    |    | MenuItem - 'Recent'    (L0, T114, R287, B156)
+   |    |    | ['MenuItem', 'RecentMenuItem', 'Recent', 'MenuItem0', 'MenuItem1']
+   |    |    | child_window(title="Recent", control_type="MenuItem")
+   |    |    | 
+   |    |    | MenuItem - 'Pre-sales project with iiTrack measurement\r\n'    (L0, T156, R287, B192)
+   |    |    | ['MenuItem2', 'Pre-sales project with iiTrack measurement\r\n', 'Pre-sales project with iiTrack measurement\r\nMenuItem']
+   |    |    | child_window(title="Pre-sales project with iiTrack measurement\r\n", control_type="MenuItem")
+   |    |    | 
+   |    |    | MenuItem - 'Open other project...'    (L0, T193, R287, B229)
+   |    |    | ['MenuItem3', 'Open other project...', 'Open other project...MenuItem']
+   |    |    | child_window(title="Open other project...", control_type="MenuItem")
+   |    |    | 
+   |    |    | MenuItem - 'Close this window'    (L0, T229, R287, B265)
+   |    |    | ['MenuItem4', 'Close this window', 'Close this windowMenuItem']
+   |    |    | child_window(title="Close this window", control_type="MenuItem")
+   |    | 
+   |    | TitleBar - ''    (L22, T0, R2048, B23)
+   |    | ['TitleBar', 'TitleBar0', 'TitleBar1']
+   |    |    | 
+   |    |    | Menu - 'System'    (L0, T0, R22, B22)
+   |    |    | ['SystemMenu', 'System', 'Menu', 'System0', 'System1', 'SystemMenu0', 'SystemMenu1', 'Menu0', 'Menu1']
+   |    |    | child_window(title="System", auto_id="MenuBar", control_type="MenuBar")
+   |    |    |    | 
+   |    |    |    | MenuItem - 'System'    (L0, T0, R22, B22)
+   |    |    |    | ['MenuItem5', 'System2', 'SystemMenuItem', 'SystemMenuItem0', 'SystemMenuItem1']
+   |    |    |    | child_window(title="System", control_type="MenuItem")
+   |    |    | 
+   |    |    | Button - 'Minimize'    (L1981, T-1, R2005, B23)
+   |    |    | ['Minimize', 'MinimizeButton', 'Button2', 'Minimize0', 'Minimize1', 'MinimizeButton0', 'MinimizeButton1']
+   |    |    | child_window(title="Minimize", control_type="Button")
+   |    |    | 
+   |    |    | Button - 'Restore'    (L2003, T-1, R2027, B23)
+   |    |    | ['Restore', 'Button3', 'RestoreButton', 'Restore0', 'Restore1', 'RestoreButton0', 'RestoreButton1']
+   |    |    | child_window(title="Restore", control_type="Button")
+   |    |    | 
+   |    |    | Button - 'Close'    (L2025, T-1, R2049, B23)
+   |    |    | ['Close', 'CloseButton', 'Button4', 'Close0', 'Close1', 'CloseButton0', 'CloseButton1']
+   |    |    | child_window(title="Close", control_type="Button")
+   | 
+   | TabControl - ''    (L0, T162, R2048, B1078)
+   | ['Welcome to the AIRchitectTabControl', 'TabControl2', 'TabControlInfo channel']
+   | child_window(auto_id="m_xtraTabControl", control_type="Tab")
+   |    | 
+   |    | Pane - 'Info channel'    (L1, T190, R2047, B1077)
+   |    | ['Info channelPane', 'Pane9', 'Info channel', 'Info channel0', 'Info channel1']
+   |    | child_window(title="Info channel", auto_id="xtpInfoChannel", control_type="Pane")
+   |    |    | 
+   |    |    | Pane - ''    (L1, T190, R2047, B1077)
+   |    |    | ['Pane10', 'Welcome to the AIRchitectPane', 'Welcome to the AIRchitectPane0', 'Welcome to the AIRchitectPane1']
+   |    |    | child_window(auto_id="InfoChannel", control_type="Pane")
+   |    |    |    | 
+   |    |    |    | Pane - ''    (L1, T190, R2047, B1077)
+   |    |    |    | ['Pane11', 'Welcome to the AIRchitectPane2']
+   |    |    |    | child_window(auto_id="webBrowser1", control_type="Pane")
+   |    |    |    |    | 
+   |    |    |    |    | Pane - ''    (L1, T190, R2047, B1077)
+   |    |    |    |    | ['Pane12', 'Welcome to the AIRchitectPane3']
+   |    |    |    |    |    | 
+   |    |    |    |    |    | Pane - ''    (L1, T190, R2047, B1077)
+   |    |    |    |    |    | ['Pane13', 'Welcome to the AIRchitectPane4']
+   |    |    |    |    |    |    | 
+   |    |    |    |    |    |    | Pane - 'about:blank'    (L1, T190, R2047, B1077)
+   |    |    |    |    |    |    | ['about:blank', 'Pane14', 'about:blankPane']
+   |    |    |    |    |    |    | child_window(title="about:blank", control_type="Pane")
+   |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    | Pane - ''    (L1, T190, R2047, B1077)
+   |    |    |    |    |    |    |    | ['Pane15', 'Welcome to the AIRchitectPane5']
+   |    |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    |    | Image - 'AIRchitect logo'    (L11, T205, R239, B272)
+   |    |    |    |    |    |    |    |    | ['Image', 'AIRchitect logoImage', 'AIRchitect logo']
+   |    |    |    |    |    |    |    |    | child_window(title="AIRchitect logo", control_type="Image")
+   |    |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    |    | ListBox - ''    (L51, T302, R2020, B465)
+   |    |    |    |    |    |    |    |    | ['ListBox3', 'Welcome to the AIRchitectListBox']
+   |    |    |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    |    |    | Static - 'Welcome to the AIRchitect'    (L51, T302, R534, B340)
+   |    |    |    |    |    |    |    |    |    | ['Static5', 'Welcome to the AIRchitect', 'Welcome to the AIRchitectStatic']
+   |    |    |    |    |    |    |    |    |    | child_window(title="Welcome to the AIRchitect", control_type="Text")
+   |    |    |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    |    |    | Static - 'Sales through Simulation'    (L51, T359, R361, B388)
+   |    |    |    |    |    |    |    |    |    | ['Sales through SimulationStatic', 'Sales through Simulation', 'Static6']
+   |    |    |    |    |    |    |    |    |    | child_window(title="Sales through Simulation", control_type="Text")
+   |    |    |    |    |    |    |    |    |    | 
+   |    |    |    |    |    |    |    |    |    | Static - 'Release 2.11'    (L51, T436, R224, B465)
+   |    |    |    |    |    |    |    |    |    | ['Release 2.11', 'Release 2.11Static', 'Static7']
+   |    |    |    |    |    |    |    |    |    | child_window(title="Release 2.11", control_type="Text")
+   |    | 
+   |    | TabItem - 'Info channel'    (L0, T163, R108, B190)
+   |    | ['Info channelTabItem', 'Info channel2', 'TabItem2']
+   |    | child_window(title="Info channel", control_type="TabItem")
+   |    |    | 
+   |    |    | Button - 'Close'    (L81, T167, R101, B187)
+   |    |    | ['Close2', 'CloseButton2', 'Button5']
+   |    |    | child_window(title="Close", control_type="Button")
+   | 
+   | Pane - 'Status Bar'    (L0, T1078, R2048, B1104)
+   | ['Status BarPane', 'Pane16', 'Status Bar']
+   | child_window(title="Status Bar", auto_id="rsbStatus", control_type="Pane")
+   |    | 
+   |    | Static - 'Static'    (L0, T1078, R66, B1104)
+   |    | ['Static8', 'StaticStatic', 'StaticStatic0', 'StaticStatic1']
+   |    | child_window(title="Static", control_type="Text")
+   |    | 
+   |    | Static - 'Static'    (L66, T1078, R110, B1104)
+   |    | ['Static9', 'StaticStatic2']
+   |    | child_window(title="Static", control_type="Text")
+   |    | 
+   |    | Button - 'Item'    (L110, T1078, R140, B1104)
+   |    | ['Item', 'Button6', 'ItemButton']
+   |    | child_window(title="Item", control_type="Button")
+   |    | 
+   |    | Static - 'Static'    (L140, T1078, R223, B1104)
+   |    | ['Static10', 'StaticStatic3']
+   |    | child_window(title="Static", control_type="Text")
+   |    | 
+   |    | Button - '0'    (L223, T1078, R243, B1104)
+   |    | ['0', '0Button', 'Button7']
+   |    | child_window(title="0", control_type="Button")
+   |    | 
+   |    | Static - 'Static'    (L0, T0, R0, B0)
+   |    | ['Static11', 'StaticStatic4']
+   |    | child_window(title="Static", control_type="Text")
+   | 
+   | Pane - ''    (L0, T162, R2048, B1078)
+   | ['Pane17', 'Welcome to the AIRchitectPane6']
+   | child_window(auto_id="985562", control_type="Pane")
+   | 
+   | Pane - 'The Ribbon'    (L0, T-8, R2048, B162)
+   | ['The Ribbon', 'Pane18', 'The RibbonPane']
+   | child_window(title="The Ribbon", auto_id="rcApplication", control_type="Pane")
+   |    | 
+   |    | SplitButton - 'Application'    (L0, T30, R45, B60)
+   |    | ['SplitButton', 'Application', 'ApplicationSplitButton']
+   |    | child_window(title="Application", control_type="SplitButton")
+   |    | 
+   |    | TitleBar - 'Ribbon Form Buttons'    (L1873, T0, R2048, B30)
+   |    | ['TitleBar2', 'Ribbon Form ButtonsTitleBar', 'Ribbon Form Buttons']
+   |    | child_window(title="Ribbon Form Buttons", control_type="TitleBar")
+   |    |    | 
+   |    |    | Button - 'Ribbon Display Options'    (L1873, T0, R1916, B30)
+   |    |    | ['Ribbon Display Options', 'Ribbon Display OptionsButton', 'Button8']
+   |    |    | child_window(title="Ribbon Display Options", control_type="Button")
+   |    |    | 
+   |    |    | Button - 'Minimize'    (L1918, T0, R1960, B30)
+   |    |    | ['Minimize2', 'MinimizeButton2', 'Button9']
+   |    |    | child_window(title="Minimize", control_type="Button")
+   |    |    | 
+   |    |    | Button - 'Maximize'    (L1962, T0, R2004, B30)
+   |    |    | ['Button10', 'Maximize', 'MaximizeButton']
+   |    |    | child_window(title="Maximize", control_type="Button")
+   |    |    | 
+   |    |    | Button - 'Close'    (L2006, T0, R2048, B30)
+   |    |    | ['Close3', 'CloseButton3', 'Button11']
+   |    |    | child_window(title="Close", control_type="Button")
+   |    | 
+   |    | Button - 'Expand Collapse'    (L2024, T135, R2048, B161)
+   |    | ['Expand CollapseButton', 'Expand Collapse', 'Button12']
+   |    | child_window(title="Expand Collapse", control_type="Button")
+   |    | 
+   |    | TabControl - 'Ribbon Tabs'    (L0, T30, R2048, B60)
+   |    | ['TabControl3', 'Ribbon Tabs', 'Ribbon TabsTabControl']
+   |    | child_window(title="Ribbon Tabs", control_type="Tab")
+   |    |    | 
+   |    |    | TabItem - 'HOME'    (L45, T30, R108, B60)
+   |    |    | ['HOMETabItem', 'TabItem3', 'HOME', 'HOME0', 'HOME1']
+   |    |    | child_window(title="HOME", control_type="TabItem")
+   |    |    | 
+   |    |    | TabItem - 'Tools'    (L108, T30, R167, B60)
+   |    |    | ['ToolsTabItem', 'Tools', 'TabItem4']
+   |    |    | child_window(title="Tools", control_type="TabItem")
+   |    |    | 
+   |    |    | TabItem - 'Help'    (L167, T30, R222, B60)
+   |    |    | ['HelpTabItem', 'Help', 'TabItem5']
+   |    |    | child_window(title="Help", control_type="TabItem")
+   |    | 
+   |    | Pane - 'Lower Ribbon'    (L0, T60, R2048, B162)
+   |    | ['Lower Ribbon', 'Pane19', 'Lower RibbonPane']
+   |    | child_window(title="Lower Ribbon", control_type="Pane")
+   |    |    | 
+   |    |    | Pane - 'HOME'    (L0, T60, R2048, B162)
+   |    |    | ['HOMEPane', 'Pane20', 'HOME2']
+   |    |    | child_window(title="HOME", control_type="Pane")
+   |    |    |    | 
+   |    |    |    | Toolbar - ''    (L0, T0, R0, B0)
+   |    |    |    | ['Toolbar', 'Toolbar0', 'Toolbar1']
+   |    |    |    | 
+   |    |    |    | Toolbar - ''    (L0, T0, R0, B0)
+   |    |    |    | ['Toolbar', 'Toolbar0', 'Toolbar1']
+   |    |    |    | 
+   |    |    |    | Toolbar - ''    (L0, T0, R0, B0)
+   |    |    |    | ['Toolbar', 'Toolbar0', 'Toolbar1']
+   |    |    |    | 
+   |    |    |    | Toolbar - ''    (L0, T0, R0, B0)
+   |    |    |    | ['Toolbar', 'Toolbar0', 'Toolbar1']
+   | 
+   | TitleBar - ''    (L22, T0, R2048, B23)
+   | ['TitleBar3']
+   |    | 
+   |    | Menu - 'System'    (L0, T0, R22, B22)
+   |    | ['SystemMenu2', 'System3', 'Menu2']
+   |    | child_window(title="System", auto_id="MenuBar", control_type="MenuBar")
+   |    |    | 
+   |    |    | MenuItem - 'System'    (L0, T0, R22, B22)
+   |    |    | ['MenuItem6', 'System4', 'SystemMenuItem2']
+   |    |    | child_window(title="System", control_type="MenuItem")
+   |    | 
+   |    | Button - 'Minimize'    (L1981, T-1, R2005, B23)
+   |    | ['Minimize3', 'MinimizeButton3', 'Button13']
+   |    | child_window(title="Minimize", control_type="Button")
+   |    | 
+   |    | Button - 'Restore'    (L2003, T-1, R2027, B23)
+   |    | ['Restore2', 'Button14', 'RestoreButton2']
+   |    | child_window(title="Restore", control_type="Button")
+   |    | 
+   |    | Button - 'Close'    (L2025, T-1, R2049, B23)
+   |    | ['Close4', 'CloseButton4', 'Button15']
+   |    | child_window(title="Close", control_type="Button")

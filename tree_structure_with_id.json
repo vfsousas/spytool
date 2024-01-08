@@ -1,0 +1,2049 @@
+{
+  "idx": 0,
+  "parent_idx": null,
+  "rect": {
+    "Left": -8,
+    "Top": -8,
+    "Right": 2056,
+    "Bottom": 1112
+  },
+  "center": {
+    "CenterX": 1024.0,
+    "CenterY": 552.0
+  },
+  "attributes": {
+    "title": "Info channel - AIRchitect",
+    "auto_id": "MainForm",
+    "control_type": "Window",
+    "found_index": 0,
+    "parent": {}
+  },
+  "node_id": "01a96123",
+  "children": [
+    {
+      "idx": 1,
+      "parent_idx": 0,
+      "rect": {
+        "Left": -8,
+        "Top": -8,
+        "Right": 2056,
+        "Bottom": 1112
+      },
+      "center": {
+        "CenterX": 1024.0,
+        "CenterY": 552.0
+      },
+      "attributes": {
+        "title": "Info channel - AIRchitect",
+        "auto_id": null,
+        "control_type": "Window",
+        "found_index": 0,
+        "parent": {
+          "title": "Info channel - AIRchitect",
+          "auto_id": "MainForm",
+          "control_type": "Window",
+          "found_index": 0
+        }
+      },
+      "node_id": "2c9d51d3",
+      "children": [
+        {
+          "idx": 2,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 0,
+            "Right": 2048,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 1024.0,
+            "CenterY": 552.0
+          },
+          "attributes": {
+            "title": "The BackstageViewControl",
+            "auto_id": "backstageView",
+            "control_type": "Tab",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "8f146d37",
+          "children": [
+            {
+              "idx": 3,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 287,
+                "Top": 62,
+                "Right": 2048,
+                "Bottom": 1104
+              },
+              "center": {
+                "CenterX": 1167.5,
+                "CenterY": 583.0
+              },
+              "attributes": {
+                "title": "The BackstageViewClientControl",
+                "auto_id": "bvccNew",
+                "control_type": "Pane",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "613e762a",
+              "children": [
+                {
+                  "idx": 4,
+                  "parent_idx": 3,
+                  "rect": {
+                    "Left": 287,
+                    "Top": 62,
+                    "Right": 2048,
+                    "Bottom": 1104
+                  },
+                  "center": {
+                    "CenterX": 1167.5,
+                    "CenterY": 583.0
+                  },
+                  "attributes": {
+                    "title": "backstageViewTablePanel",
+                    "auto_id": "backstageViewTablePanel",
+                    "control_type": "Pane",
+                    "found_index": 0,
+                    "parent": {
+                      "title": "The BackstageViewClientControl",
+                      "auto_id": "bvccNew",
+                      "control_type": "Pane",
+                      "found_index": 0
+                    }
+                  },
+                  "node_id": "8679b040",
+                  "children": [
+                    {
+                      "idx": 5,
+                      "parent_idx": 4,
+                      "rect": {
+                        "Left": 1703,
+                        "Top": 66,
+                        "Right": 2045,
+                        "Bottom": 147
+                      },
+                      "center": {
+                        "CenterX": 1874.0,
+                        "CenterY": 106.5
+                      },
+                      "attributes": {
+                        "title": null,
+                        "auto_id": "userNameControl",
+                        "control_type": "Pane",
+                        "found_index": 0,
+                        "parent": {
+                          "title": "backstageViewTablePanel",
+                          "auto_id": "backstageViewTablePanel",
+                          "control_type": "Pane",
+                          "found_index": 0
+                        }
+                      },
+                      "node_id": "33ef2079",
+                      "children": [
+                        {
+                          "idx": 6,
+                          "parent_idx": 5,
+                          "rect": {
+                            "Left": 1703,
+                            "Top": 66,
+                            "Right": 2045,
+                            "Bottom": 147
+                          },
+                          "center": {
+                            "CenterX": 1874.0,
+                            "CenterY": 106.5
+                          },
+                          "attributes": {
+                            "title": "The XtraLayoutControl",
+                            "auto_id": "layoutControl1",
+                            "control_type": "Pane",
+                            "found_index": 0,
+                            "parent": {
+                              "title": null,
+                              "auto_id": "userNameControl",
+                              "control_type": "Pane",
+                              "found_index": 0
+                            }
+                          },
+                          "node_id": "b7f212eb",
+                          "children": [
+                            {
+                              "idx": 7,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1705,
+                                "Top": 124,
+                                "Right": 1961,
+                                "Bottom": 145
+                              },
+                              "center": {
+                                "CenterX": 1833.0,
+                                "CenterY": 134.5
+                              },
+                              "attributes": {
+                                "title": "Service",
+                                "auto_id": "lblRole",
+                                "control_type": "Text",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "7d161859",
+                              "children": [
+                                {
+                                  "idx": 17,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 291,
+                                    "Top": 175,
+                                    "Right": 611,
+                                    "Bottom": 364
+                                  },
+                                  "center": {
+                                    "CenterX": 451.0,
+                                    "CenterY": 269.5
+                                  },
+                                  "attributes": {
+                                    "title": "Start new project with logging device",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "76dcc079",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 18,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 611,
+                                    "Top": 175,
+                                    "Right": 931,
+                                    "Bottom": 364
+                                  },
+                                  "center": {
+                                    "CenterX": 771.0,
+                                    "CenterY": 269.5
+                                  },
+                                  "attributes": {
+                                    "title": "Start new project without logging device",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "127c3e28",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 19,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 931,
+                                    "Top": 175,
+                                    "Right": 1251,
+                                    "Bottom": 364
+                                  },
+                                  "center": {
+                                    "CenterX": 1091.0,
+                                    "CenterY": 269.5
+                                  },
+                                  "attributes": {
+                                    "title": "Start new AIRscan project",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "b606b06e",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 20,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 1251,
+                                    "Top": 175,
+                                    "Right": 1571,
+                                    "Bottom": 364
+                                  },
+                                  "center": {
+                                    "CenterX": 1411.0,
+                                    "CenterY": 269.5
+                                  },
+                                  "attributes": {
+                                    "title": "Start single machine project",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "7b5bf92f",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 21,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 1571,
+                                    "Top": 175,
+                                    "Right": 1891,
+                                    "Bottom": 364
+                                  },
+                                  "center": {
+                                    "CenterX": 1731.0,
+                                    "CenterY": 269.5
+                                  },
+                                  "attributes": {
+                                    "title": "Product Selection Tool",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "84c0a805",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 22,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 291,
+                                    "Top": 364,
+                                    "Right": 611,
+                                    "Bottom": 553
+                                  },
+                                  "center": {
+                                    "CenterX": 451.0,
+                                    "CenterY": 458.5
+                                  },
+                                  "attributes": {
+                                    "title": "Training",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "7fe81c80",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 23,
+                                  "parent_idx": 7,
+                                  "rect": {
+                                    "Left": 611,
+                                    "Top": 364,
+                                    "Right": 931,
+                                    "Bottom": 553
+                                  },
+                                  "center": {
+                                    "CenterX": 771.0,
+                                    "CenterY": 458.5
+                                  },
+                                  "attributes": {
+                                    "title": "Feedback",
+                                    "auto_id": null,
+                                    "control_type": "ListItem",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Service",
+                                      "auto_id": "lblRole",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "711b8b55",
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "idx": 8,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1705,
+                                "Top": 99,
+                                "Right": 1961,
+                                "Bottom": 120
+                              },
+                              "center": {
+                                "CenterX": 1833.0,
+                                "CenterY": 109.5
+                              },
+                              "attributes": {
+                                "title": null,
+                                "auto_id": "lblEmail",
+                                "control_type": "Text",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "d8c2b549",
+                              "children": [
+                                {
+                                  "idx": 44,
+                                  "parent_idx": 8,
+                                  "rect": {
+                                    "Left": 11,
+                                    "Top": 205,
+                                    "Right": 239,
+                                    "Bottom": 272
+                                  },
+                                  "center": {
+                                    "CenterX": 125.0,
+                                    "CenterY": 238.5
+                                  },
+                                  "attributes": {
+                                    "title": "AIRchitect logo",
+                                    "auto_id": null,
+                                    "control_type": "Image",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": null,
+                                      "auto_id": "lblEmail",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "a16460e8",
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "idx": 9,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1705,
+                                "Top": 68,
+                                "Right": 1961,
+                                "Bottom": 95
+                              },
+                              "center": {
+                                "CenterX": 1833.0,
+                                "CenterY": 81.5
+                              },
+                              "attributes": {
+                                "title": "Sousa Vanderson",
+                                "auto_id": "lblUserName",
+                                "control_type": "Text",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "ce6315a9",
+                              "children": [
+                                {
+                                  "idx": 46,
+                                  "parent_idx": 9,
+                                  "rect": {
+                                    "Left": 51,
+                                    "Top": 302,
+                                    "Right": 534,
+                                    "Bottom": 340
+                                  },
+                                  "center": {
+                                    "CenterX": 292.5,
+                                    "CenterY": 321.0
+                                  },
+                                  "attributes": {
+                                    "title": "Welcome to the AIRchitect",
+                                    "auto_id": null,
+                                    "control_type": "Text",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Sousa Vanderson",
+                                      "auto_id": "lblUserName",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "8729e44d",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 47,
+                                  "parent_idx": 9,
+                                  "rect": {
+                                    "Left": 51,
+                                    "Top": 359,
+                                    "Right": 361,
+                                    "Bottom": 388
+                                  },
+                                  "center": {
+                                    "CenterX": 206.0,
+                                    "CenterY": 373.5
+                                  },
+                                  "attributes": {
+                                    "title": "Sales through Simulation",
+                                    "auto_id": null,
+                                    "control_type": "Text",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Sousa Vanderson",
+                                      "auto_id": "lblUserName",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "d48183f2",
+                                  "children": []
+                                },
+                                {
+                                  "idx": 48,
+                                  "parent_idx": 9,
+                                  "rect": {
+                                    "Left": 51,
+                                    "Top": 436,
+                                    "Right": 224,
+                                    "Bottom": 465
+                                  },
+                                  "center": {
+                                    "CenterX": 137.5,
+                                    "CenterY": 450.5
+                                  },
+                                  "attributes": {
+                                    "title": "Release 2.11",
+                                    "auto_id": null,
+                                    "control_type": "Text",
+                                    "found_index": 0,
+                                    "parent": {
+                                      "title": "Sousa Vanderson",
+                                      "auto_id": "lblUserName",
+                                      "control_type": "Text",
+                                      "found_index": 0
+                                    }
+                                  },
+                                  "node_id": "fa3b1584",
+                                  "children": []
+                                }
+                              ]
+                            },
+                            {
+                              "idx": 10,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1965,
+                                "Top": 68,
+                                "Right": 2043,
+                                "Bottom": 145
+                              },
+                              "center": {
+                                "CenterX": 2004.0,
+                                "CenterY": 106.5
+                              },
+                              "attributes": {
+                                "title": "System.Drawing.Bitmap",
+                                "auto_id": "pictureEditUserIcon",
+                                "control_type": "Pane",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "c0bc1971",
+                              "children": []
+                            },
+                            {
+                              "idx": 11,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1703,
+                                "Top": 66,
+                                "Right": 2045,
+                                "Bottom": 147
+                              },
+                              "center": {
+                                "CenterX": 1874.0,
+                                "CenterY": 106.5
+                              },
+                              "attributes": {
+                                "title": "Root",
+                                "auto_id": null,
+                                "control_type": "Pane",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "34f717d1",
+                              "children": []
+                            },
+                            {
+                              "idx": 15,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 291,
+                                "Top": 175,
+                                "Right": 2044,
+                                "Bottom": 1100
+                              },
+                              "center": {
+                                "CenterX": 1167.5,
+                                "CenterY": 637.5
+                              },
+                              "attributes": {
+                                "title": null,
+                                "auto_id": "1247756",
+                                "control_type": "Pane",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "b96faca8",
+                              "children": []
+                            },
+                            {
+                              "idx": 16,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 291,
+                                "Top": 175,
+                                "Right": 2044,
+                                "Bottom": 553
+                              },
+                              "center": {
+                                "CenterX": 1167.5,
+                                "CenterY": 364.0
+                              },
+                              "attributes": {
+                                "title": "AIRchitect",
+                                "auto_id": null,
+                                "control_type": "List",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "f765c842",
+                              "children": []
+                            },
+                            {
+                              "idx": 42,
+                              "parent_idx": 6,
+                              "rect": {
+                                "Left": 1,
+                                "Top": 190,
+                                "Right": 2047,
+                                "Bottom": 1077
+                              },
+                              "center": {
+                                "CenterX": 1024.0,
+                                "CenterY": 633.5
+                              },
+                              "attributes": {
+                                "title": "about:blank",
+                                "auto_id": null,
+                                "control_type": "Pane",
+                                "found_index": 0,
+                                "parent": {
+                                  "title": "The XtraLayoutControl",
+                                  "auto_id": "layoutControl1",
+                                  "control_type": "Pane",
+                                  "found_index": 0
+                                }
+                              },
+                              "node_id": "375b651a",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "idx": 14,
+                          "parent_idx": 5,
+                          "rect": {
+                            "Left": 290,
+                            "Top": 174,
+                            "Right": 2045,
+                            "Bottom": 1101
+                          },
+                          "center": {
+                            "CenterX": 1167.5,
+                            "CenterY": 637.5
+                          },
+                          "attributes": {
+                            "title": "Gallery",
+                            "auto_id": "galleryControl",
+                            "control_type": "List",
+                            "found_index": 0,
+                            "parent": {
+                              "title": null,
+                              "auto_id": "userNameControl",
+                              "control_type": "Pane",
+                              "found_index": 0
+                            }
+                          },
+                          "node_id": "a46dce06",
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "idx": 12,
+                      "parent_idx": 4,
+                      "rect": {
+                        "Left": 290,
+                        "Top": 65,
+                        "Right": 499,
+                        "Bottom": 168
+                      },
+                      "center": {
+                        "CenterX": 394.5,
+                        "CenterY": 116.5
+                      },
+                      "attributes": {
+                        "title": "AIRchitect",
+                        "auto_id": "lblBackstageviewNewTitle",
+                        "control_type": "Text",
+                        "found_index": 0,
+                        "parent": {
+                          "title": "backstageViewTablePanel",
+                          "auto_id": "backstageViewTablePanel",
+                          "control_type": "Pane",
+                          "found_index": 0
+                        }
+                      },
+                      "node_id": "e0132e0a",
+                      "children": []
+                    },
+                    {
+                      "idx": 13,
+                      "parent_idx": 4,
+                      "rect": {
+                        "Left": 290,
+                        "Top": 174,
+                        "Right": 2045,
+                        "Bottom": 1101
+                      },
+                      "center": {
+                        "CenterX": 1167.5,
+                        "CenterY": 637.5
+                      },
+                      "attributes": {
+                        "title": null,
+                        "auto_id": "GalleryOpenNew",
+                        "control_type": "Pane",
+                        "found_index": 0,
+                        "parent": {
+                          "title": "backstageViewTablePanel",
+                          "auto_id": "backstageViewTablePanel",
+                          "control_type": "Pane",
+                          "found_index": 0
+                        }
+                      },
+                      "node_id": "5dc41097",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "idx": 32,
+                  "parent_idx": 3,
+                  "rect": {
+                    "Left": 0,
+                    "Top": 0,
+                    "Right": 22,
+                    "Bottom": 22
+                  },
+                  "center": {
+                    "CenterX": 11.0,
+                    "CenterY": 11.0
+                  },
+                  "attributes": {
+                    "title": "System",
+                    "auto_id": null,
+                    "control_type": "MenuItem",
+                    "found_index": 0,
+                    "parent": {
+                      "title": "The BackstageViewClientControl",
+                      "auto_id": "bvccNew",
+                      "control_type": "Pane",
+                      "found_index": 0
+                    }
+                  },
+                  "node_id": "f68a5186",
+                  "children": []
+                },
+                {
+                  "idx": 39,
+                  "parent_idx": 3,
+                  "rect": {
+                    "Left": 1,
+                    "Top": 190,
+                    "Right": 2047,
+                    "Bottom": 1077
+                  },
+                  "center": {
+                    "CenterX": 1024.0,
+                    "CenterY": 633.5
+                  },
+                  "attributes": {
+                    "title": null,
+                    "auto_id": "webBrowser1",
+                    "control_type": "Pane",
+                    "found_index": 0,
+                    "parent": {
+                      "title": "The BackstageViewClientControl",
+                      "auto_id": "bvccNew",
+                      "control_type": "Pane",
+                      "found_index": 0
+                    }
+                  },
+                  "node_id": "3c4dc5d8",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "idx": 24,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 21,
+                "Top": 20,
+                "Right": 51,
+                "Bottom": 50
+              },
+              "center": {
+                "CenterX": 36.0,
+                "CenterY": 35.0
+              },
+              "attributes": {
+                "title": "Back",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "a7ae3029",
+              "children": []
+            },
+            {
+              "idx": 25,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 70,
+                "Right": 287,
+                "Bottom": 113
+              },
+              "center": {
+                "CenterX": 143.5,
+                "CenterY": 91.5
+              },
+              "attributes": {
+                "title": "New",
+                "auto_id": null,
+                "control_type": "TabItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "37e70b81",
+              "children": []
+            },
+            {
+              "idx": 26,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 114,
+                "Right": 287,
+                "Bottom": 156
+              },
+              "center": {
+                "CenterX": 143.5,
+                "CenterY": 135.0
+              },
+              "attributes": {
+                "title": "Recent",
+                "auto_id": null,
+                "control_type": "MenuItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "1a2f3ebc",
+              "children": []
+            },
+            {
+              "idx": 27,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 156,
+                "Right": 287,
+                "Bottom": 192
+              },
+              "center": {
+                "CenterX": 143.5,
+                "CenterY": 174.0
+              },
+              "attributes": {
+                "title": "Pre-sales project with iiTrack measurement\\r\\n",
+                "auto_id": null,
+                "control_type": "MenuItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "4b1b9abe",
+              "children": []
+            },
+            {
+              "idx": 28,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 193,
+                "Right": 287,
+                "Bottom": 229
+              },
+              "center": {
+                "CenterX": 143.5,
+                "CenterY": 211.0
+              },
+              "attributes": {
+                "title": "Open other project...",
+                "auto_id": null,
+                "control_type": "MenuItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "96925342",
+              "children": []
+            },
+            {
+              "idx": 29,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 229,
+                "Right": 287,
+                "Bottom": 265
+              },
+              "center": {
+                "CenterX": 143.5,
+                "CenterY": 247.0
+              },
+              "attributes": {
+                "title": "Close this window",
+                "auto_id": null,
+                "control_type": "MenuItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "1b05da9f",
+              "children": []
+            },
+            {
+              "idx": 31,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 0,
+                "Right": 22,
+                "Bottom": 22
+              },
+              "center": {
+                "CenterX": 11.0,
+                "CenterY": 11.0
+              },
+              "attributes": {
+                "title": "System",
+                "auto_id": "MenuBar",
+                "control_type": "MenuBar",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "e5ec6a09",
+              "children": []
+            },
+            {
+              "idx": 33,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 1981,
+                "Top": -1,
+                "Right": 2005,
+                "Bottom": 23
+              },
+              "center": {
+                "CenterX": 1993.0,
+                "CenterY": 11.0
+              },
+              "attributes": {
+                "title": "Minimize",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "afa34355",
+              "children": []
+            },
+            {
+              "idx": 34,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 2003,
+                "Top": -1,
+                "Right": 2027,
+                "Bottom": 23
+              },
+              "center": {
+                "CenterX": 2015.0,
+                "CenterY": 11.0
+              },
+              "attributes": {
+                "title": "Restore",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "e25bf772",
+              "children": []
+            },
+            {
+              "idx": 35,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 2025,
+                "Top": -1,
+                "Right": 2049,
+                "Bottom": 23
+              },
+              "center": {
+                "CenterX": 2037.0,
+                "CenterY": 11.0
+              },
+              "attributes": {
+                "title": "Close",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "19217e6b",
+              "children": []
+            },
+            {
+              "idx": 38,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 1,
+                "Top": 190,
+                "Right": 2047,
+                "Bottom": 1077
+              },
+              "center": {
+                "CenterX": 1024.0,
+                "CenterY": 633.5
+              },
+              "attributes": {
+                "title": null,
+                "auto_id": "InfoChannel",
+                "control_type": "Pane",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "5a05af53",
+              "children": []
+            },
+            {
+              "idx": 50,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 81,
+                "Top": 167,
+                "Right": 101,
+                "Bottom": 187
+              },
+              "center": {
+                "CenterX": 91.0,
+                "CenterY": 177.0
+              },
+              "attributes": {
+                "title": "Close",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "19217e6b",
+              "children": []
+            },
+            {
+              "idx": 62,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 1873,
+                "Top": 0,
+                "Right": 1916,
+                "Bottom": 30
+              },
+              "center": {
+                "CenterX": 1894.5,
+                "CenterY": 15.0
+              },
+              "attributes": {
+                "title": "Ribbon Display Options",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "54f86de9",
+              "children": []
+            },
+            {
+              "idx": 63,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 1918,
+                "Top": 0,
+                "Right": 1960,
+                "Bottom": 30
+              },
+              "center": {
+                "CenterX": 1939.0,
+                "CenterY": 15.0
+              },
+              "attributes": {
+                "title": "Minimize",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "afa34355",
+              "children": []
+            },
+            {
+              "idx": 64,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 1962,
+                "Top": 0,
+                "Right": 2004,
+                "Bottom": 30
+              },
+              "center": {
+                "CenterX": 1983.0,
+                "CenterY": 15.0
+              },
+              "attributes": {
+                "title": "Maximize",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "4b572f08",
+              "children": []
+            },
+            {
+              "idx": 65,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 2006,
+                "Top": 0,
+                "Right": 2048,
+                "Bottom": 30
+              },
+              "center": {
+                "CenterX": 2027.0,
+                "CenterY": 15.0
+              },
+              "attributes": {
+                "title": "Close",
+                "auto_id": null,
+                "control_type": "Button",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "19217e6b",
+              "children": []
+            },
+            {
+              "idx": 68,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 45,
+                "Top": 30,
+                "Right": 108,
+                "Bottom": 60
+              },
+              "center": {
+                "CenterX": 76.5,
+                "CenterY": 45.0
+              },
+              "attributes": {
+                "title": "HOME",
+                "auto_id": null,
+                "control_type": "TabItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "d198159f",
+              "children": []
+            },
+            {
+              "idx": 69,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 108,
+                "Top": 30,
+                "Right": 167,
+                "Bottom": 60
+              },
+              "center": {
+                "CenterX": 137.5,
+                "CenterY": 45.0
+              },
+              "attributes": {
+                "title": "Tools",
+                "auto_id": null,
+                "control_type": "TabItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "5b00c525",
+              "children": []
+            },
+            {
+              "idx": 70,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 167,
+                "Top": 30,
+                "Right": 222,
+                "Bottom": 60
+              },
+              "center": {
+                "CenterX": 194.5,
+                "CenterY": 45.0
+              },
+              "attributes": {
+                "title": "Help",
+                "auto_id": null,
+                "control_type": "TabItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "9522a4e0",
+              "children": []
+            },
+            {
+              "idx": 72,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 60,
+                "Right": 2048,
+                "Bottom": 162
+              },
+              "center": {
+                "CenterX": 1024.0,
+                "CenterY": 111.0
+              },
+              "attributes": {
+                "title": "HOME",
+                "auto_id": null,
+                "control_type": "Pane",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "55782e6b",
+              "children": []
+            },
+            {
+              "idx": 79,
+              "parent_idx": 2,
+              "rect": {
+                "Left": 0,
+                "Top": 0,
+                "Right": 22,
+                "Bottom": 22
+              },
+              "center": {
+                "CenterX": 11.0,
+                "CenterY": 11.0
+              },
+              "attributes": {
+                "title": "System",
+                "auto_id": null,
+                "control_type": "MenuItem",
+                "found_index": 0,
+                "parent": {
+                  "title": "The BackstageViewControl",
+                  "auto_id": "backstageView",
+                  "control_type": "Tab",
+                  "found_index": 0
+                }
+              },
+              "node_id": "f68a5186",
+              "children": []
+            }
+          ]
+        },
+        {
+          "idx": 37,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 1,
+            "Top": 190,
+            "Right": 2047,
+            "Bottom": 1077
+          },
+          "center": {
+            "CenterX": 1024.0,
+            "CenterY": 633.5
+          },
+          "attributes": {
+            "title": "Info channel",
+            "auto_id": "xtpInfoChannel",
+            "control_type": "Pane",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "64739fbe",
+          "children": []
+        },
+        {
+          "idx": 49,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 163,
+            "Right": 108,
+            "Bottom": 190
+          },
+          "center": {
+            "CenterX": 54.0,
+            "CenterY": 176.5
+          },
+          "attributes": {
+            "title": "Info channel",
+            "auto_id": null,
+            "control_type": "TabItem",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "b50ab660",
+          "children": []
+        },
+        {
+          "idx": 52,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 1078,
+            "Right": 66,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 33.0,
+            "CenterY": 1091.0
+          },
+          "attributes": {
+            "title": "Static",
+            "auto_id": null,
+            "control_type": "Text",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "59852e45",
+          "children": []
+        },
+        {
+          "idx": 53,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 66,
+            "Top": 1078,
+            "Right": 110,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 88.0,
+            "CenterY": 1091.0
+          },
+          "attributes": {
+            "title": "Static",
+            "auto_id": null,
+            "control_type": "Text",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "59852e45",
+          "children": []
+        },
+        {
+          "idx": 54,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 110,
+            "Top": 1078,
+            "Right": 140,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 125.0,
+            "CenterY": 1091.0
+          },
+          "attributes": {
+            "title": "Item",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "416ab0e3",
+          "children": []
+        },
+        {
+          "idx": 55,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 140,
+            "Top": 1078,
+            "Right": 223,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 181.5,
+            "CenterY": 1091.0
+          },
+          "attributes": {
+            "title": "Static",
+            "auto_id": null,
+            "control_type": "Text",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "59852e45",
+          "children": []
+        },
+        {
+          "idx": 56,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 223,
+            "Top": 1078,
+            "Right": 243,
+            "Bottom": 1104
+          },
+          "center": {
+            "CenterX": 233.0,
+            "CenterY": 1091.0
+          },
+          "attributes": {
+            "title": "0",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "114cca10",
+          "children": []
+        },
+        {
+          "idx": 57,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 0,
+            "Right": 0,
+            "Bottom": 0
+          },
+          "center": {
+            "CenterX": 0.0,
+            "CenterY": 0.0
+          },
+          "attributes": {
+            "title": "Static",
+            "auto_id": null,
+            "control_type": "Text",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "59852e45",
+          "children": []
+        },
+        {
+          "idx": 60,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 30,
+            "Right": 45,
+            "Bottom": 60
+          },
+          "center": {
+            "CenterX": 22.5,
+            "CenterY": 45.0
+          },
+          "attributes": {
+            "title": "Application",
+            "auto_id": null,
+            "control_type": "SplitButton",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "63866b3f",
+          "children": []
+        },
+        {
+          "idx": 61,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 1873,
+            "Top": 0,
+            "Right": 2048,
+            "Bottom": 30
+          },
+          "center": {
+            "CenterX": 1960.5,
+            "CenterY": 15.0
+          },
+          "attributes": {
+            "title": "Ribbon Form Buttons",
+            "auto_id": null,
+            "control_type": "TitleBar",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "16431eda",
+          "children": []
+        },
+        {
+          "idx": 66,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 2024,
+            "Top": 135,
+            "Right": 2048,
+            "Bottom": 161
+          },
+          "center": {
+            "CenterX": 2036.0,
+            "CenterY": 148.0
+          },
+          "attributes": {
+            "title": "Expand Collapse",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "f4ac5b53",
+          "children": []
+        },
+        {
+          "idx": 67,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 30,
+            "Right": 2048,
+            "Bottom": 60
+          },
+          "center": {
+            "CenterX": 1024.0,
+            "CenterY": 45.0
+          },
+          "attributes": {
+            "title": "Ribbon Tabs",
+            "auto_id": null,
+            "control_type": "Tab",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "69215891",
+          "children": []
+        },
+        {
+          "idx": 71,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 60,
+            "Right": 2048,
+            "Bottom": 162
+          },
+          "center": {
+            "CenterX": 1024.0,
+            "CenterY": 111.0
+          },
+          "attributes": {
+            "title": "Lower Ribbon",
+            "auto_id": null,
+            "control_type": "Pane",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "ec27bb4c",
+          "children": []
+        },
+        {
+          "idx": 78,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 0,
+            "Top": 0,
+            "Right": 22,
+            "Bottom": 22
+          },
+          "center": {
+            "CenterX": 11.0,
+            "CenterY": 11.0
+          },
+          "attributes": {
+            "title": "System",
+            "auto_id": "MenuBar",
+            "control_type": "MenuBar",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "e5ec6a09",
+          "children": []
+        },
+        {
+          "idx": 80,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 1981,
+            "Top": -1,
+            "Right": 2005,
+            "Bottom": 23
+          },
+          "center": {
+            "CenterX": 1993.0,
+            "CenterY": 11.0
+          },
+          "attributes": {
+            "title": "Minimize",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "afa34355",
+          "children": []
+        },
+        {
+          "idx": 81,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 2003,
+            "Top": -1,
+            "Right": 2027,
+            "Bottom": 23
+          },
+          "center": {
+            "CenterX": 2015.0,
+            "CenterY": 11.0
+          },
+          "attributes": {
+            "title": "Restore",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "e25bf772",
+          "children": []
+        },
+        {
+          "idx": 82,
+          "parent_idx": 1,
+          "rect": {
+            "Left": 2025,
+            "Top": -1,
+            "Right": 2049,
+            "Bottom": 23
+          },
+          "center": {
+            "CenterX": 2037.0,
+            "CenterY": 11.0
+          },
+          "attributes": {
+            "title": "Close",
+            "auto_id": null,
+            "control_type": "Button",
+            "found_index": 0,
+            "parent": {
+              "title": "Info channel - AIRchitect",
+              "auto_id": null,
+              "control_type": "Window",
+              "found_index": 0
+            }
+          },
+          "node_id": "19217e6b",
+          "children": []
+        }
+      ]
+    },
+    {
+      "idx": 36,
+      "parent_idx": 0,
+      "rect": {
+        "Left": 0,
+        "Top": 162,
+        "Right": 2048,
+        "Bottom": 1078
+      },
+      "center": {
+        "CenterX": 1024.0,
+        "CenterY": 620.0
+      },
+      "attributes": {
+        "title": null,
+        "auto_id": "m_xtraTabControl",
+        "control_type": "Tab",
+        "found_index": 0,
+        "parent": {
+          "title": "Info channel - AIRchitect",
+          "auto_id": "MainForm",
+          "control_type": "Window",
+          "found_index": 0
+        }
+      },
+      "node_id": "b0333b6f",
+      "children": []
+    },
+    {
+      "idx": 51,
+      "parent_idx": 0,
+      "rect": {
+        "Left": 0,
+        "Top": 1078,
+        "Right": 2048,
+        "Bottom": 1104
+      },
+      "center": {
+        "CenterX": 1024.0,
+        "CenterY": 1091.0
+      },
+      "attributes": {
+        "title": "Status Bar",
+        "auto_id": "rsbStatus",
+        "control_type": "Pane",
+        "found_index": 0,
+        "parent": {
+          "title": "Info channel - AIRchitect",
+          "auto_id": "MainForm",
+          "control_type": "Window",
+          "found_index": 0
+        }
+      },
+      "node_id": "72399bbe",
+      "children": []
+    },
+    {
+      "idx": 58,
+      "parent_idx": 0,
+      "rect": {
+        "Left": 0,
+        "Top": 162,
+        "Right": 2048,
+        "Bottom": 1078
+      },
+      "center": {
+        "CenterX": 1024.0,
+        "CenterY": 620.0
+      },
+      "attributes": {
+        "title": null,
+        "auto_id": "985562",
+        "control_type": "Pane",
+        "found_index": 0,
+        "parent": {
+          "title": "Info channel - AIRchitect",
+          "auto_id": "MainForm",
+          "control_type": "Window",
+          "found_index": 0
+        }
+      },
+      "node_id": "12d53f30",
+      "children": []
+    },
+    {
+      "idx": 59,
+      "parent_idx": 0,
+      "rect": {
+        "Left": 0,
+        "Top": -8,
+        "Right": 2048,
+        "Bottom": 162
+      },
+      "center": {
+        "CenterX": 1024.0,
+        "CenterY": 77.0
+      },
+      "attributes": {
+        "title": "The Ribbon",
+        "auto_id": "rcApplication",
+        "control_type": "Pane",
+        "found_index": 0,
+        "parent": {
+          "title": "Info channel - AIRchitect",
+          "auto_id": "MainForm",
+          "control_type": "Window",
+          "found_index": 0
+        }
+      },
+      "node_id": "4e82edc6",
+      "children": []
+    }
+  ]
+}

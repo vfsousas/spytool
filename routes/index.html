@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include Bootstrap CSS and Font Awesome Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-xxxxxxxxxxxxxx" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>SpyTool - Web</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Select an option:</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <div>
+                            <select id="myDropdown">
+                                {% for window in windows_list %}
+                                <option value="{{ window }}">{{ window }}</option>
+                                {% endfor %}
+                            </select>
+                            <button onclick="inspect()"> Inspect </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid p-0" id="container">
+        <div class="row">
+            <div class="col" id="img_content">
+                <img id="screenshot" alt="Screenshot" />
+            </div>
+            <div class="col">
+                <div id="tree-menu" class="row overflow-auto" style="max-height: 900px;">
+                    <h3 class="fs-4">Tree Menu</h3>
+                </div>
+                <div class="row">
+                    <form>
+                        <h3 class="fs-4">Attributes</h3>
+                        <label class="form-label">title</label>
+                        <input type="text" class="form-control" id="form_title" disabled>
+                        <label class="form-label">auto_id</label>
+                        <input type="text" class="form-control" id="form_auto_id" disabled>
+                        <label class="form-label">Control Type</label>
+                        <input type="text" class="form-control" id="form_control_type" disabled>
+                        <button class="btn btn-success"> Copy Path</button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+
+</body>
+
+</html>

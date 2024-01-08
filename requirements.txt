@@ -2,3 +2,5 @@ pywinauto
 PySimpleGUI
 pygame
 pyperclip
+Flask
+pygetwindow
