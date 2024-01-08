@@ -1,3 +1,4 @@
+import csv
 import hashlib
 import json
 import os
@@ -16,6 +17,11 @@ class TreeNode:
 class Parser:
     def __init__(self) -> None:
         self.temp_folder = tempfile.gettempdir()
+
+    def save_to_csv(self, data_list, file_path):
+        with open(file_path, "w", newline="") as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerows(data_list)
 
     def parse(self, temp_file):
         with open(temp_file, "r") as file:
@@ -93,16 +99,17 @@ class Parser:
                     _new_data[2].update(node)
                     nodes_list.append(_new_data)
                     _new_data = []
+            self.save_to_csv(nodes_list, "output.csv")
             tree_root, node_dict = self.build_tree(nodes_list)
             # Convert the tree to a dictionary with parent indices, "rect" key, "center" key, "parent" key, and "node_id" key
             tree_dict_with_id = self.tree_to_dict_with_id(tree_root, node_dict)
             tmp_path_to_save = os.path.join(self.temp_folder, "parsed_pywinauto.json")
             self.save_to_json(tmp_path_to_save, tree_dict_with_id)
+
             return tree_dict_with_id
 
     def find_parent_node(self, node, idx):
         if "idx" in node:
-            print(node["idx"])
             if node["idx"] == idx:
                 return node
             if "parent" in node and node["parent"]:
@@ -135,17 +142,34 @@ class Parser:
         center_x = (left + right) / 2
         center_y = (top + bottom) / 2
 
-        return {"X": center_x, "CY": center_y}
+        return {"X": center_x, "Y": center_y}
 
     def build_tree(self, nodes):
         node_dict = {}
+        last_occurrence = {}
 
         for position, idx, attributes in nodes:
+            if idx == 29:
+                pass
             current_node = TreeNode(idx, None, attributes)
             node_dict[idx] = current_node
 
+            last_occurrence[
+                idx
+            ] = position  # Update last occurrence for the current index
+
             if position > 0:
-                parent_idx = nodes[position - 1][1]  # Parent's idx
+                parent_idx = 0
+                for _idx in range(len(last_occurrence) - 1):
+                    try:
+                        if position - 1 == last_occurrence[_idx]:
+                            parent_idx = _idx
+                    except Exception as err:
+                        pass
+
+                # parent_idx = last_occurrence[
+                #    position - 1
+                # ]  # Use the last occurrence of the parent's idx
                 parent_node = node_dict[parent_idx]
                 parent_node.children.append(current_node)
                 current_node.parent_idx = parent_idx  # Set parent index directly

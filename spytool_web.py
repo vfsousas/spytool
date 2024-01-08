@@ -45,6 +45,10 @@ def printscreen():
     # Take a screenshot
     screenshot = pyautogui.screenshot()
 
+    # Remove 10 pixels from the bottom of the image
+    width, height = screenshot.size
+    screenshot = screenshot.crop((0, 0, width, height - 60))
+
     # Convert the image to base64
     img_buffer = io.BytesIO()
     screenshot.save(img_buffer, format="PNG")
