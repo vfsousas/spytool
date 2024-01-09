@@ -43,6 +43,7 @@ def getWindows():
 
 def printscreen():
     # Take a screenshot
+    
     screenshot = pyautogui.screenshot()
 
     # Remove 10 pixels from the bottom of the image
@@ -209,8 +210,11 @@ def inspect(window):
     desktop = Desktop(backend="uia").windows()
     windows = ([w for w in desktop if window in w.window_text()])[0]
     title = windows.window_text()
-    windows.restore()
-    windows.maximize()
+    try:
+        windows.restore()
+        windows.maximize()
+    except:
+        pass
     windows.set_focus()
     _printscreen = printscreen()
     current_window.activate()

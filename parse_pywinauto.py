@@ -23,27 +23,41 @@ class Parser:
             csv_writer = csv.writer(csv_file)
             csv_writer.writerows(data_list)
 
+    def remove_brackets_lines(self, input_string):
+        # Split the input string into lines
+        lines = input_string.split("\n")
+        # Define a translation table to remove '[' and ']'
+        translation_table = str.maketrans("", "", "[]")
+        # Filter out lines containing '[' or ']'
+        filtered_lines = [line.translate(translation_table) for line in lines]
+
+        # Join the filtered lines back into a string
+        result_string = "\n".join(filtered_lines)
+
+        return result_string
+
     def parse(self, temp_file):
         with open(temp_file, "r") as file:
             string = file.read()
 
             # Remove lines containing '[' and ']'
-            filtered_string = re.sub(r"\[.*?\]|\].*?\[", "", string)
+            # filtered_string = re.sub(r"\[.*?\]|\].*?\[", "", string)
+            filtered_string = self.remove_brackets_lines(string)
 
-            pattern = r"^\s*\|{2,}\s*$"
+            # # Use re.sub to replace matching lines with an empty string
+            # filtered_string = re.sub(
+            #     r"^.*\|\s*$", "", filtered_string, flags=re.MULTILINE
+            # )
 
-            # Use re.sub to replace matching lines with an empty string
-            filtered_string = re.sub(
-                r"^.*\|\s*$", "", filtered_string, flags=re.MULTILINE
-            )
-
-            # Remove empty lines
-            result_string = "\n".join(
-                line for line in filtered_string.split("\n") if line.strip()
-            )
-
+            # # Remove empty lines
+            # result_string = "\n".join(
+            #     line for line in filtered_string.split("\n") if line.strip()
+            # )
+            result_lines = [
+                line for line in filtered_string.splitlines() if line.strip()
+            ]
+            result_string = "\n".join(result_lines)
             # Define a regular expression pattern to match the coordinates pattern
-            pattern = re.compile(r"\(L(-?\d+),\s*T(-?\d+),\s*R(\d+),\s*B(\d+)\)")
             # updated_data = re.sub(pattern, replace_coordinates, result_string)
             pattern_1 = r"\(L(-?\d+),\s*T(-?\d+),\s*R(\d+),\s*B(\d+)\)"
 

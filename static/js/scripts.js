@@ -1,11 +1,33 @@
 // Dictionary to store references to tree nodes by id
 var nodeDictionary = {};
 
+
+function formatTime(milliseconds) {
+    // Convert milliseconds to seconds
+    var seconds = Math.floor(milliseconds / 1000);
+
+    // Calculate hours, minutes, and remaining seconds
+    var hours = Math.floor(seconds / 3600);
+    var minutes = Math.floor((seconds % 3600) / 60);
+    var remainingSeconds = seconds % 60;
+
+    // Format the result
+    var formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
+    return formattedTime;
+}
+
+function pad(value) {
+    // Pad single digits with leading zero
+    return value < 10 ? '0' + value : value;
+}
+
 function inspect() {
     var selectedValue = document.getElementById("exampleDataList").value;
     // Show loading indicator
     var loadingIndicator = document.getElementById("loadingIndicator");
     loadingIndicator.style.display = 'block';
+    // Capture start time
+    var startTime = performance.now();
 
     // Use fetch to trigger the Flask route
     fetch(`/inspect/${selectedValue}`)
@@ -25,6 +47,11 @@ function inspect() {
         }).finally(() => {
             // Hide loading indicator regardless of success or error
             loadingIndicator.style.display = 'none';
+            // Calculate time difference
+            var endTime = performance.now();
+            var elapsedTime = endTime - startTime;
+            var formattedElapsedTime = formatTime(elapsedTime);
+            console.log('Request processing time:', formattedElapsedTime);
         });
 }
 
@@ -158,7 +185,6 @@ document.addEventListener('mouseover', function (event) {
         // Use fetch to trigger the Flask route
         // Find the node by idx in the localStorage data
         const node = getNodeByIdxFromLocalStorage(nodeId);
-        console.log(node)
         highlightDiv(node)
         // Optional: Remove the div after a certain delay (e.g., 2 seconds)
         setTimeout(function () {
@@ -244,9 +270,8 @@ document.getElementById('img_content').addEventListener('mousemove', function (e
         document.addEventListener('keydown', function (event) {
             if (event.key === 'Control') {
                 // Set the flag when the Ctrl key is pressed
-                console.log('Ctrl key is pressed', node);
                 highlightDiv(node)
-                selectNodeById(node.idx);
+                //selectNodeById(node.idx);
 
             }
         });
