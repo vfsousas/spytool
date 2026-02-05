@@ -25,7 +25,7 @@ def index():
 
 def open_browser():
     # Open the default web browser with the Flask app
-    webbrowser.open("http://127.0.0.1:5000/")
+    webbrowser.open("http://127.0.0.1:5050/")
 
 
 def getWindows():
@@ -37,18 +37,12 @@ def getWindows():
     desktop = Desktop(backend="uia").windows()
     block_list = ["Taskbar", "", "SpyTool - Web", "Program Manager"]
     windows = [w.window_text() for w in desktop if w.window_text() not in block_list]
-    windows.pop(0)
-    return windows
+    return [w for w in windows if w]
 
 
-def printscreen():
-    # Take a screenshot
-    
-    screenshot = pyautogui.screenshot()
-
-    # Remove 10 pixels from the bottom of the image
-    width, height = screenshot.size
-    screenshot = screenshot.crop((0, 0, width, height - 60))
+def printscreen(region=None):
+    # Take a screenshot of the full screen or a region (left, top, width, height)
+    screenshot = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
 
     # Convert the image to base64
     img_buffer = io.BytesIO()
@@ -202,13 +196,16 @@ def element(idx):
     return node
 
 
-@app.route("/inspect/<window>", methods=["GET"])
+@app.route("/inspect/<path:window>", methods=["GET"])
 def inspect(window):
     # Get the current active window
     current_window = gw.getActiveWindow()
 
     desktop = Desktop(backend="uia").windows()
-    windows = ([w for w in desktop if window in w.window_text()])[0]
+    matching = [w for w in desktop if window in w.window_text()]
+    if not matching:
+        return {"error": "Window not found"}, 404
+    windows = matching[0]
     title = windows.window_text()
     try:
         windows.restore()
@@ -216,7 +213,14 @@ def inspect(window):
     except:
         pass
     windows.set_focus()
-    _printscreen = printscreen()
+    rect = windows.rectangle()
+    left = rect.left
+    top = rect.top
+    right = rect.right
+    bottom = rect.bottom
+    width = right - left
+    height = bottom - top
+    _printscreen = printscreen(region=(left, top, width, height))
     current_window.activate()
 
     temp_directory = tempfile.gettempdir()
@@ -225,7 +229,11 @@ def inspect(window):
     parser = Parser()
     parser_tree = parser.parse(temp_file)
 
-    ret = {"printscreen": _printscreen, "tree": parser_tree}
+    ret = {
+        "printscreen": _printscreen,
+        "tree": parser_tree,
+        "window_rect": {"left": left, "top": top, "right": right, "bottom": bottom},
+    }
     return ret  # Return a response to the fetch request
 
 

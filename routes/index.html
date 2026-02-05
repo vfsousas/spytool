@@ -4,78 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Include Bootstrap CSS and Font Awesome Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        integrity="sha512-xxxxxxxxxxxxxx" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
     <title>SpyTool - Web</title>
 </head>
 
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div>
-            <a class="navbar-brand" href="#">Select an option:</a>
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-mark">ST</div>
+            <div class="brand-text">
+                <h1>SpyTool</h1>
+                <p>Windows + Browser UI Inspector</p>
+            </div>
         </div>
-        <div class="container-fluid">
-            <form>
-                <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Type to search..."
-                    onchange="releaseInspectButton()">
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <datalist id="datalistOptions">
-                        {% for window in windows_list %}
-                        <option value="{{ window }}">{{ window }}</option>
-                        {% endfor %}
-                    </datalist>
-                    <div>
-                        <button id="btn_inspect" class="btn btn-primary" onclick="inspect()" type="button"
-                            disabled>Inspect</button>
-                    </div>
-                    <div>
-                        <button class="btn btn-warning" type="button">Reload List</button>
-                    </div>
+        <div class="status" id="status" data-type="ok">Ready</div>
+    </header>
+
+    <section class="controls">
+        <div class="control-group">
+            <label for="exampleDataList">Window</label>
+            <input list="datalistOptions" id="exampleDataList" placeholder="Type to search..." onchange="releaseInspectButton()">
+            <datalist id="datalistOptions">
+                {% for window in windows_list %}
+                <option value="{{ window }}">{{ window }}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="control-actions">
+            <button id="btn_inspect" class="btn primary" onclick="inspect()" type="button" disabled>Inspect</button>
+            <button class="btn ghost" type="button" onclick="window.location.reload()">Reload List</button>
+        </div>
+    </section>
+
+    <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+        <div class="spinner"></div>
+        <span>Capturing window and UI tree…</span>
+    </div>
+
+    <main class="workspace" id="container">
+        <section class="panel tree-panel">
+            <div class="panel-header">
+                <h2>UI Tree</h2>
+                <p>Hover a node to preview. Click to lock selection.</p>
+            </div>
+            <div id="tree-menu" class="tree-menu"></div>
+        </section>
+
+        <section class="panel canvas-panel">
+            <div class="panel-header">
+                <h2>Screenshot</h2>
+                <p>Hold <span class="kbd">Ctrl</span> and move to snap the closest node.</p>
+            </div>
+            <div id="img_content" class="canvas">
+                <img id="screenshot" alt="Captured window screenshot" />
+            </div>
+        </section>
+
+        <section class="panel attributes-panel">
+            <div class="panel-header">
+                <h2>Attributes</h2>
+                <p>Copy a node selector quickly for automation scripts.</p>
+            </div>
+            <form class="attributes-form">
+                <label>title</label>
+                <input type="text" id="form_title" disabled>
+                <label>auto_id</label>
+                <input type="text" id="form_auto_id" disabled>
+                <label>control_type</label>
+                <input type="text" id="form_control_type" disabled>
+                <input type="hidden" id="form_path">
+                <button class="btn primary" onclick="copyPath()" type="button">Copy Path</button>
             </form>
-        </div>
-        </div>
-    </nav>
+        </section>
+    </main>
 
-    <div id="loadingIndicator" style="display: none;">
-    </div>
-
-    <div class="container-fluid p-0" id="container">
-        <div class="row">
-            <div class="col" id="img_content">
-                <img id="screenshot" alt="Screenshot" />
-            </div>
-            <div class="col">
-                <div id="tree-menu" class="row overflow-auto" style="max-height: 700px;">
-                    <h3 class="fs-4">Tree Menu</h3>
-                </div>
-                <div class="row">
-                    <form>
-                        <h3 class="fs-4">Attributes</h3>
-                        <label class="form-label">title</label>
-                        <input type="text" class="form-control form-control-sm" id="form_title" disabled>
-                        <label class="form-label">auto_id</label>
-                        <input type="text" class="form-control form-control-sm" id="form_auto_id" disabled>
-                        <label class="form-label">Control Type</label>
-                        <input type="text" class="form-control form-control-sm" id="form_control_type" disabled>
-                        <button class="btn btn-success" onclick="copyPath()" type="button"> Copy Path</button>
-                        <input type="hidden" id="form_path">
-
-                    </form>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-
 </body>
 
 </html>

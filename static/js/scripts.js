@@ -1,132 +1,165 @@
-// Dictionary to store references to tree nodes by id
-var nodeDictionary = {};
-
+const state = {
+    tree: null,
+    nodeDictionary: {},
+    activeNodeId: null,
+    scaleX: 1,
+    scaleY: 1,
+    windowRect: null,
+};
 
 function formatTime(milliseconds) {
-    // Convert milliseconds to seconds
     var seconds = Math.floor(milliseconds / 1000);
-
-    // Calculate hours, minutes, and remaining seconds
     var hours = Math.floor(seconds / 3600);
     var minutes = Math.floor((seconds % 3600) / 60);
     var remainingSeconds = seconds % 60;
-
-    // Format the result
-    var formattedTime = `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
-    return formattedTime;
+    return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
 }
 
 function pad(value) {
-    // Pad single digits with leading zero
     return value < 10 ? '0' + value : value;
 }
 
-function inspect() {
-    var selectedValue = document.getElementById("exampleDataList").value;
-    // Show loading indicator
-    var loadingIndicator = document.getElementById("loadingIndicator");
-    loadingIndicator.style.display = 'block';
-    // Capture start time
-    var startTime = performance.now();
+function setStatus(text, type) {
+    var status = document.getElementById("status");
+    status.textContent = text;
+    status.dataset.type = type || "info";
+}
 
-    // Use fetch to trigger the Flask route
-    fetch(`/inspect/${selectedValue}`)
-        .then(response => response.json())
+function setLoading(isLoading) {
+    var loadingIndicator = document.getElementById("loadingIndicator");
+    var button = document.getElementById("btn_inspect");
+    loadingIndicator.style.display = isLoading ? 'block' : 'none';
+    button.disabled = isLoading;
+}
+
+function getScale() {
+    var imgElement = document.getElementById("screenshot");
+    if (!imgElement || !imgElement.naturalWidth || !imgElement.naturalHeight) {
+        return { scaleX: 1, scaleY: 1 };
+    }
+    var scaleX = imgElement.clientWidth / imgElement.naturalWidth;
+    var scaleY = imgElement.clientHeight / imgElement.naturalHeight;
+    return { scaleX: scaleX || 1, scaleY: scaleY || 1 };
+}
+
+function inspect() {
+    var selectedValue = document.getElementById("exampleDataList").value.trim();
+    if (!selectedValue) {
+        setStatus("Select a window before inspecting.", "warn");
+        return;
+    }
+    setLoading(true);
+    setStatus("Inspecting window…", "info");
+    var startTime = performance.now();
+    var success = false;
+
+    fetch(`/inspect/${encodeURIComponent(selectedValue)}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || "Inspect failed");
+                });
+            }
+            return response.json();
+        })
         .then(data => {
+            state.tree = data.tree;
+            state.windowRect = data.window_rect || null;
+            localStorage.setItem('inspect', JSON.stringify(data.tree));
             displayTree(data.tree);
-            // Update the HTML with the returned data
             var imgElement = document.getElementById("screenshot");
             imgElement.src = `data:image/png;base64, ${data.printscreen}`;
             var container = document.getElementById('container');
-            container.style.display = 'block';
-            localStorage.setItem('inspect', JSON.stringify(data.tree));
-
+            container.style.display = 'grid';
+            success = true;
         })
         .catch(error => {
             console.error('Error:', error);
+            setStatus(error.message || "Unexpected error", "error");
         }).finally(() => {
-            // Hide loading indicator regardless of success or error
-            loadingIndicator.style.display = 'none';
-            // Calculate time difference
+            setLoading(false);
             var endTime = performance.now();
             var elapsedTime = endTime - startTime;
             var formattedElapsedTime = formatTime(elapsedTime);
-            console.log('Request processing time:', formattedElapsedTime);
+            if (success) {
+                setStatus(`Ready · ${formattedElapsedTime}`, "ok");
+            }
         });
 }
 
 function displayTree(tree) {
     var treeMenu = document.getElementById('tree-menu');
-    treeMenu.innerHTML = '<h3>Tree Menu</h3>';
+    treeMenu.innerHTML = '';
+    state.nodeDictionary = {};
+    if (!tree || !tree.attributes) {
+        treeMenu.innerHTML = '<p class="empty">No UI tree data available.</p>';
+        return;
+    }
     var treeList = document.createElement('ul');
+    treeList.className = "tree-list";
     createTreeMenu(tree, treeList);
     treeMenu.appendChild(treeList);
 }
 
 function createTreeMenu(node, parentElement) {
     var listItem = document.createElement('li');
-    var itemText = document.createElement('span');
-    itemText.textContent = node.attributes.title || 'Unnamed Node';
+    listItem.className = "tree-item";
+    listItem.dataset.nodeId = node.idx;
 
+    var button = document.createElement('button');
+    button.type = "button";
+    button.className = "tree-button";
+    button.textContent = node.attributes.title || node.attributes.control_type || 'Unnamed Node';
 
-    var imageElement = document.createElement('img');
-    if (node.attributes.control_type == 'Button') {
-        // Add image based on node type
-        var imageSrc = 'static/img/button.png';
-        imageElement.src = imageSrc;
-    }
+    var meta = document.createElement('span');
+    meta.className = "tree-meta";
+    meta.textContent = node.attributes.control_type || "Unknown";
 
-    imageElement.style.width = '16px';  // Adjust the width as needed
-    imageElement.style.marginRight = '5px';
-    listItem.classList.add('list-group-item');
-    listItem.classList.add('list-group-item-action');
-    // Set the id of the list item
-    listItem.id = node.idx;
-
-    // Add click event to toggle visibility of children
-    itemText.addEventListener('click', function () {
+    button.addEventListener('click', function () {
+        setActiveNode(node.idx);
         toggleVisibility(listItem);
-        setFocus(listItem);
     });
 
-    listItem.appendChild(imageElement);
-    listItem.appendChild(itemText);
+    listItem.appendChild(button);
+    listItem.appendChild(meta);
     parentElement.appendChild(listItem);
-
-    // Store a reference to the list item in the dictionary
-    nodeDictionary[node.idx] = listItem;
-
+    state.nodeDictionary[node.idx] = listItem;
 
     if (node.children && node.children.length > 0) {
         var sublist = document.createElement('ul');
-        //sublist.style.display = 'none'; // Initially hide the children
+        sublist.className = "tree-children";
         node.children.forEach(child => createTreeMenu(child, sublist));
         listItem.appendChild(sublist);
     }
 }
 
-
-// Example of how to select a node by its id
-function selectNodeById(nodeId) {
-    var selectedNode = nodeDictionary[nodeId];
-    if (selectedNode) {
-        selectedNode.focus();
-
-        // Do something with the selected node
-        console.log('Selected Node:', selectedNode);
-    } else {
-        console.error('Node with id', nodeId, 'not found.');
-    }
-}
-
 function toggleVisibility(element) {
-    var sublist = element.querySelector('ul');
+    var sublist = element.querySelector('.tree-children');
     if (sublist) {
-        sublist.style.display = sublist.style.display === 'none' ? 'block' : 'none';
+        var isCollapsed = sublist.style.display === 'none';
+        sublist.style.display = isCollapsed ? 'block' : 'none';
     }
 }
 
-// Function to find a node by idx in a tree structure
+function setActiveNode(nodeId) {
+    if (state.activeNodeId !== null) {
+        var previous = state.nodeDictionary[state.activeNodeId];
+        if (previous) {
+            previous.classList.remove('selected');
+        }
+    }
+    var selected = state.nodeDictionary[nodeId];
+    if (selected) {
+        selected.classList.add('selected');
+    }
+    state.activeNodeId = nodeId;
+    var node = getNodeByIdxFromLocalStorage(nodeId);
+    if (node) {
+        highlightDiv(node);
+        updateAttributes(node);
+    }
+}
+
 function findNodeByIdx(node, targetIdx) {
     if (node.idx === targetIdx) {
         return node;
@@ -140,75 +173,73 @@ function findNodeByIdx(node, targetIdx) {
     return null;
 }
 
-// Function to get data from localStorage and find a node by idx
 function getNodeByIdxFromLocalStorage(idx) {
     const storedData = localStorage.getItem('inspect');
     const data = storedData ? JSON.parse(storedData) : null;
-
     if (data) {
         return findNodeByIdx(data, parseInt(idx));
     }
     return null;
 }
 
-function highlightDiv(node) {
-    // Check if the div already exists
-    var highlightDiv = document.getElementById('highlightDiv');
-    if (!highlightDiv) {
-        // Create the highlighting div
-        highlightDiv = document.createElement('div');
-        highlightDiv.id = 'highlightDiv';
-        highlightDiv.style.position = 'fixed';
-        highlightDiv.style.backgroundColor = 'rgba(0, 0, 255, 0.9)';
-        document.getElementById('img_content').appendChild(highlightDiv);
-    }
-
-    const _div = document.getElementById('img_content');
-    const _rect = _div.getBoundingClientRect();
-    const top = _rect.top;
-
-    // Set the position and size of the highlighting div based on rect
-    highlightDiv.style.left = node.rect.Left + 'px';
-    highlightDiv.style.top = (node.rect.Top + top) + 'px';
-    highlightDiv.style.width = (node.rect.Right - node.rect.Left) + 'px';
-    highlightDiv.style.height = (node.rect.Bottom - node.rect.Top) + 'px';
-    document.getElementById('form_title').value = node.attributes.title
-    document.getElementById('form_auto_id').value = node.attributes.auto_id
-    document.getElementById('form_control_type').value = node.attributes.control_type
-    document.getElementById('form_path').value = JSON.stringify(node.attributes)
+function updateAttributes(node) {
+    document.getElementById('form_title').value = node.attributes.title || "";
+    document.getElementById('form_auto_id').value = node.attributes.auto_id || "";
+    document.getElementById('form_control_type').value = node.attributes.control_type || "";
+    document.getElementById('form_path').value = JSON.stringify(node.attributes);
 }
 
-document.addEventListener('mouseover', function (event) {
-    // Check if the mouseover event is on a tree node
-    if (event.target.tagName === 'SPAN' && event.target.parentElement.tagName === 'LI') {
-        var nodeId = event.target.parentElement.id;
-        // Use fetch to trigger the Flask route
-        // Find the node by idx in the localStorage data
-        const node = getNodeByIdxFromLocalStorage(nodeId);
-        highlightDiv(node)
-        // Optional: Remove the div after a certain delay (e.g., 2 seconds)
-        setTimeout(function () {
-            document.getElementById('img_content').removeChild(highlightDiv);
-        }, 2000);
+function highlightDiv(node) {
+    if (!node || !node.rect) {
+        return;
     }
-});
-
-
-document.addEventListener('mouseout', function (event) {
-    // Check if the mouseover event is on a tree node
-    if (event.target.tagName === 'SPAN' && event.target.parentElement.tagName === 'LI') {
-        var element = event.target;
+    var highlightEl = document.getElementById('highlightDiv');
+    if (!highlightEl) {
+        highlightEl = document.createElement('div');
+        highlightEl.id = 'highlightDiv';
+        document.getElementById('img_content').appendChild(highlightEl);
     }
-});
 
-// Hide the div with id "highlightDiv" when the page loads
+    var imgElement = document.getElementById("screenshot");
+    var canvas = document.getElementById('img_content');
+    var canvasRect = canvas.getBoundingClientRect();
+    var imgRect = imgElement.getBoundingClientRect();
+    var scale = getScale();
+    state.scaleX = scale.scaleX;
+    state.scaleY = scale.scaleY;
+
+    var offsetX = imgRect.left - canvasRect.left;
+    var offsetY = imgRect.top - canvasRect.top;
+    var rectLeft = node.rect.Left;
+    var rectTop = node.rect.Top;
+    if (state.windowRect) {
+        rectLeft = rectLeft - state.windowRect.left;
+        rectTop = rectTop - state.windowRect.top;
+    }
+    var left = offsetX + (rectLeft * state.scaleX);
+    var top = offsetY + (rectTop * state.scaleY);
+    var width = (node.rect.Right - node.rect.Left) * state.scaleX;
+    var height = (node.rect.Bottom - node.rect.Top) * state.scaleY;
+
+    highlightEl.style.left = `${left}px`;
+    highlightEl.style.top = `${top}px`;
+    highlightEl.style.width = `${width}px`;
+    highlightEl.style.height = `${height}px`;
+    highlightEl.style.opacity = "1";
+    highlightEl.style.display = "block";
+}
+
+function clearHighlight() {
+    var highlightEl = document.getElementById('highlightDiv');
+    if (highlightEl) {
+        highlightEl.style.display = "none";
+    }
+}
+
 window.onload = function () {
-    //document.body.style.zoom = "80%";
     var container = document.getElementById('container');
     container.style.display = 'none';
-    //document.body.style.zoom = "100%";
-    //document.body.style.zoom = "80%";
-
+    setStatus("Ready", "ok");
 };
 
 function releaseInspectButton() {
@@ -217,72 +248,68 @@ function releaseInspectButton() {
 }
 
 function copyPath() {
-    // Create a temporary textarea element
-    var textarea = document.createElement("textarea");
     var selectedValue = document.getElementById("form_path").value;
-
-    // Set the value of the textarea to the hidden input's value
-    textarea.value = selectedValue.value;
-
-    // Append the textarea to the document
-    document.body.appendChild(textarea);
-
-    // Select the text inside the textarea
-    textarea.select();
-
-    try {
-        // Use the Clipboard API to write the selected text to the clipboard
-        navigator.clipboard.writeText(selectedValue).then(function () {
-            console.log('Text successfully copied to clipboard:', selectedValue);
-        }).catch(function (err) {
-            console.error('Unable to copy text to clipboard.', err);
-        });
-    } catch (err) {
-        // Fallback for browsers that do not support the Clipboard API
-        console.error('Clipboard API not supported. Falling back to execCommand method.');
-        document.execCommand('copy');
-    } finally {
-        // Remove the temporary textarea
-        document.body.removeChild(textarea);
+    if (!selectedValue) {
+        setStatus("No node selected to copy.", "warn");
+        return;
     }
-    // Remove the temporary textarea
-    document.body.removeChild(textarea);
-
+    navigator.clipboard.writeText(selectedValue).then(function () {
+        setStatus("Path copied to clipboard.", "ok");
+    }).catch(function () {
+        var textarea = document.createElement("textarea");
+        textarea.value = selectedValue;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        setStatus("Path copied to clipboard.", "ok");
+    });
 }
 
-
-document.getElementById('img_content').addEventListener('mousemove', function (event) {
-    var mouseX = event.clientX; // X-coordinate relative to the viewport
-    var mouseY = event.clientY; // Y-coordinate relative to the viewport
-
-    // Optionally, you can also get the coordinates relative to the div
-    var rect = event.target.getBoundingClientRect();
-    var mouseXRelative = event.clientX - rect.left;
-    var mouseYRelative = event.clientY - rect.top;
-
-    // Call the function with your tree structure and coordinates
-    const storedData = localStorage.getItem('inspect');
-    const data = storedData ? JSON.parse(storedData) : null;
-
-    if (data) {
-        node = findNodeByCoordinates(data, mouseXRelative, mouseYRelative) //findNodeByIdx(data, parseInt(idx));
-        // Event listener for keydown
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Control') {
-                // Set the flag when the Ctrl key is pressed
-                highlightDiv(node)
-                //selectNodeById(node.idx);
-
-            }
-        });
-
+document.addEventListener('mouseover', function (event) {
+    if (event.target.classList.contains('tree-button')) {
+        var nodeId = event.target.parentElement.dataset.nodeId;
+        var node = getNodeByIdxFromLocalStorage(nodeId);
+        highlightDiv(node);
     }
-    return null;
-
 });
 
+document.addEventListener('mouseout', function (event) {
+    if (event.target.classList.contains('tree-button')) {
+        clearHighlight();
+    }
+});
 
-// Function to find a node by coordinates in a tree structure
+var imgContent = document.getElementById('img_content');
+if (imgContent) {
+    imgContent.addEventListener('mousemove', function (event) {
+        if (!state.tree) {
+            return;
+        }
+        if (!event.ctrlKey) {
+            return;
+        }
+        var imgElement = document.getElementById("screenshot");
+        if (!imgElement) {
+            return;
+        }
+        var rect = imgElement.getBoundingClientRect();
+        var mouseXRelative = event.clientX - rect.left;
+        var mouseYRelative = event.clientY - rect.top;
+        var scale = getScale();
+        var originalX = mouseXRelative / scale.scaleX;
+        var originalY = mouseYRelative / scale.scaleY;
+        if (state.windowRect) {
+            originalX += state.windowRect.left;
+            originalY += state.windowRect.top;
+        }
+        var node = findNodeByCoordinates(state.tree, originalX, originalY);
+        if (node) {
+            setActiveNode(node.idx);
+        }
+    });
+}
+
 function findNodeByCoordinates(node, targetX, targetY) {
     let closestNode = null;
     let minDistance = Number.MAX_SAFE_INTEGER;
