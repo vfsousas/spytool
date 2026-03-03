@@ -190,7 +190,7 @@ class ScreenshotBackend:
         return image
 
     @staticmethod
-    def capture_vnc(host="127.0.0.1", port=5900, password="") -> np.ndarray:
+    def capture_vnc(host="192.168.0.10", port=5900, password="") -> np.ndarray:
         tmp = os.path.join(tempfile.gettempdir(), "_lvgl_vnc_cap.png")
         pwd_flag = ["-passwd", password] if password else []
         vncsnapshot_error = None
@@ -270,7 +270,7 @@ class LVGLInspector:
 
     def _make_client(
         self,
-        ip="127.0.0.1",
+        ip="192.168.0.10",
         port=8080,
         topic="receive-test-queries",
         user="test-client",
@@ -375,13 +375,13 @@ class LVGLInspector:
         max_depth=None,
         show_props=True,
         show_text=True,
-        ip="127.0.0.1",
+        ip="192.168.0.10",
         port=8080,
         topic="receive-test-queries",
         username="test-client",
         password="test-client",
         capture="none",
-        vnc_host="127.0.0.1",
+        vnc_host="192.168.0.10",
         vnc_port=5900,
         fb_device="/dev/fb0",
         snapshot_path="/tmp/lvgl_snapshot.png",
@@ -422,7 +422,7 @@ class LVGLInspector:
         self,
         path="/tmp/lvgl_snapshot.png",
         capture="vnc",
-        vnc_host="127.0.0.1",
+        vnc_host="192.168.0.10",
         vnc_port=5900,
         fb_device="/dev/fb0",
     ):
@@ -440,7 +440,7 @@ class LVGLInspector:
         self,
         template_path: str,
         capture="vnc",
-        vnc_host="127.0.0.1",
+        vnc_host="192.168.0.10",
         vnc_port=5900,
         threshold=0.85,
     ) -> Optional[tuple]:

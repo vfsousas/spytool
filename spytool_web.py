@@ -93,16 +93,28 @@ def capture_window_by_title_base64(title_keywords):
         raise RuntimeError("PyAutoGUI not available.")
     if os.name != "nt":
         raise RuntimeError("Window-title fallback is only supported on Windows.")
-    import pygetwindow as gw
-    windows = gw.getAllWindows()
-    keywords = [k.lower() for k in title_keywords if k]
-    matches = [w for w in windows if any(k in (w.title or "").lower() for k in keywords)]
-    if not matches:
-        raise RuntimeError("No matching local QEMU window found for fallback capture.")
-    target = matches[0]
-    if target.width <= 0 or target.height <= 0:
-        raise RuntimeError("Matched QEMU window has invalid dimensions.")
-    return printscreen(region=(int(target.left), int(target.top), int(target.width), int(target.height)))
+    else:
+        import pygetwindow as gw
+
+        windows = gw.getAllWindows()
+        keywords = [k.lower() for k in title_keywords if k]
+        matches = []
+        for w in windows:
+            title = (w.title or "").strip()
+            if not title:
+                continue
+            lower = title.lower()
+            if any(k in lower for k in keywords):
+                matches.append(w)
+
+        if not matches:
+            raise RuntimeError("No matching local QEMU window found for fallback capture.")
+
+        target = matches[0]
+        left, top, width, height = target.left, target.top, target.width, target.height
+        if width <= 0 or height <= 0:
+            raise RuntimeError("Matched QEMU window has invalid dimensions for capture.")
+        return printscreen(region=(int(left), int(top), int(width), int(height)))
 
 
 def capture_linux_window_by_title_base64(title_keywords):
@@ -285,7 +297,23 @@ def lvgl_inspect():
     if not LVGL_AVAILABLE:
         return jsonify({"error": "LVGL Inspector not available. Required packages not installed."}), 500
     try:
-        data = request.json or {}
+        # Get parameters from the request
+        data = request.json
+        element = data.get("element", "root")
+        max_depth = data.get("max_depth", None)
+        ip = data.get("ip", "192.168.0.10")
+        port = data.get("port", 8080)
+        capture = data.get("capture", "none")
+        vnc_host = data.get("vnc_host", "192.168.0.10")
+        vnc_port = data.get("vnc_port", 5900)
+        snapshot_path = data.get("snapshot_path", "/tmp/lvgl_snapshot.png")
+        topic = data.get("topic", "receive-test-queries")
+        username = data.get("username", "test-client")
+        password = data.get("password", "test-client")
+        deep_scan = data.get("deep_scan", True)
+        scan_hidden = data.get("scan_hidden", True)
+        scan_extra_roots = data.get("scan_extra_roots", True)
+
         inspector = LVGLInspector()
         tree_data = inspector.lvgl_application_structure(
             element=data.get("element", "root"),
@@ -326,15 +354,19 @@ def lvgl_screenshot():
         return jsonify({"error": "LVGL Inspector not available."}), 500
 
     try:
-        data = request.json or {}
-        capture_method   = data.get("capture", "qemu_monitor")
-        vnc_host         = data.get("vnc_host", "192.168.0.10")
-        vnc_port         = int(data.get("vnc_port", 5900))
-        monitor_host     = data.get("qemu_monitor_host", "127.0.0.1")
-        monitor_port     = int(data.get("qemu_monitor_port", 55555))
-        qmp_socket       = data.get("qemu_qmp_socket", "/tmp/qemu.sock")
-        fb_device        = data.get("fb_device", "/dev/fb0")
-        qemu_titles      = data.get("qemu_window_titles", ["qemu-system", "qemu", "qemu-system-aarch64"])
+        import tempfile
+        import os
+
+        # Get capture method from request
+        data = request.json
+        capture_method = data.get("capture", "vnc")  # default to vnc
+        vnc_host = data.get("vnc_host", "192.168.0.10")
+        vnc_port = data.get("vnc_port", 5900)
+        qemu_monitor_host = data.get("qemu_monitor_host", "127.0.0.1")
+        qemu_monitor_port = data.get("qemu_monitor_port", 55555)
+        qemu_qmp_socket = data.get("qemu_qmp_socket", "/tmp/qemu.sock")
+        fb_device = data.get("fb_device", "/dev/fb0")
+        qemu_titles = data.get("qemu_window_titles", ["qemu", "qemu-system", "qemu-system-x86_64"])
 
         # ── none ────────────────────────────────────────────────────────
         if capture_method == "none":
@@ -441,4 +473,11 @@ if __name__ == "__main__":
     threading.Timer(1, open_browser).start()
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.jinja_env.auto_reload = True
-    app.run(debug=True, host="0.0.0.0", port=5050)
+
+    extra_files = [
+        "routes/style.css",  # Example: Monitor changes in a CSS file
+        "routes/index.html",  # Example: Monitor changes in an HTML file in the 'templates' folder
+    ]
+
+    # Run the Flask app
+    app.run(debug=True, host='0.0.0.0', port=5050)

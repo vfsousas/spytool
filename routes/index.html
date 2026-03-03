@@ -47,10 +47,27 @@
 
         <!-- LVGL Inspector Controls -->
         <div id="lvglControls" class="lvgl-controls" style="display: none;">
-            <div class="lvgl-row">
+            <div class="control-group">
+                <label for="lvglIp">LVGL IP</label>
+                <input type="text" id="lvglIp" value="192.168.0.10">
+            </div>
+            <div class="control-group">
+                <label for="lvglPort">LVGL Port</label>
+                <input type="number" id="lvglPort" value="8080">
+            </div>
+            <div class="control-group">
+                <label for="lvglCaptureMethod">Capture Method</label>
+                <select id="lvglCaptureMethod">
+                    <option value="vnc" selected>VNC (QEMU/Linux)</option>
+                    <option value="none">None (tree only)</option>
+                    <option value="x11">X11 (Linux Desktop)</option>
+                    <option value="framebuffer">Framebuffer</option>
+                </select>
+            </div>
+            <div id="vncSettings">
                 <div class="control-group">
-                    <label for="lvglIp">LVGL IP</label>
-                    <input type="text" id="lvglIp" value="192.168.0.10" placeholder="192.168.0.10">
+                    <label for="vncHost">VNC Host</label>
+                    <input type="text" id="vncHost" value="192.168.0.10">
                 </div>
                 <div class="control-group">
                     <label for="lvglPort">LVGL Port</label>
