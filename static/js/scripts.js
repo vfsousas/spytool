@@ -157,12 +157,13 @@ function inspectLVGL() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                capture: captureMethod,
-                vnc_host: vncHost,
-                vnc_port: parseInt(vncPort)
-            })
-        }).then(response => {
+        body: JSON.stringify({
+            capture: captureMethod,
+            vnc_host: vncHost,
+            vnc_port: parseInt(vncPort),
+            qemu_window_titles: ["qemu-system", "qemu", "qemu-system-x86_64"]
+        })
+    }).then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
                     throw new Error(data.error || `HTTP error! status: ${response.status}`);
@@ -182,6 +183,9 @@ function inspectLVGL() {
         if (response && response.screenshot) {
             var imgElement = document.getElementById("screenshot");
             imgElement.src = `data:image/png;base64, ${response.screenshot}`;
+            if (response.fallback === "local_qemu_window") {
+                setStatus("VNC capture failed, showing local QEMU window screenshot.", "warn");
+            }
         }
 
         var container = document.getElementById('container');

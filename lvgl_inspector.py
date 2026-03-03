@@ -11,6 +11,7 @@ import hashlib
 import os
 import subprocess
 import sys
+import tempfile
 from typing import Any, Dict, List, Optional
 
 import cv2
@@ -100,7 +101,7 @@ class ScreenshotBackend:
 
     @staticmethod
     def capture_vnc(host="127.0.0.1", port=5900, password="") -> np.ndarray:
-        tmp = "/tmp/_lvgl_vnc_cap.png"
+        tmp = os.path.join(tempfile.gettempdir(), "_lvgl_vnc_cap.png")
         pwd_flag = ["-passwd", password] if password else []
         vncsnapshot_error = None
         try:
@@ -135,8 +136,30 @@ class ScreenshotBackend:
         except FileNotFoundError:
             ffmpeg_error = "ffmpeg not installed"
 
+        ffmpeg_protocol_error = None
+        try:
+            vnc_url = f"vnc://{host}:{port}"
+            if password:
+                vnc_url = f"vnc://:{password}@{host}:{port}"
+            result = subprocess.run(
+                ["ffmpeg", "-y", "-i", vnc_url, "-frames:v", "1", tmp],
+                capture_output=True,
+                timeout=10,
+            )
+            if result.returncode == 0 and os.path.exists(tmp):
+                image = cv2.imread(tmp)
+                os.remove(tmp)
+                if image is None:
+                    raise RuntimeError("Failed to read ffmpeg protocol VNC capture image.")
+                return image
+            ffmpeg_protocol_error = result.stderr.decode(errors="ignore")
+        except FileNotFoundError:
+            ffmpeg_protocol_error = "ffmpeg not installed"
+
         raise RuntimeError(
-            f"VNC capture failed (vncsnapshot: {vncsnapshot_error}; ffmpeg: {ffmpeg_error}). "
+            "VNC capture failed "
+            f"(vncsnapshot: {vncsnapshot_error}; ffmpeg demuxer mode: {ffmpeg_error}; "
+            f"ffmpeg protocol mode: {ffmpeg_protocol_error}). "
             "Install vncsnapshot/ffmpeg or select capture method 'none'."
         )
 

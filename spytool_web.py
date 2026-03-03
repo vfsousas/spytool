@@ -100,6 +100,34 @@ def printscreen(region=None):
         raise
 
 
+def capture_window_by_title_base64(title_keywords):
+    """Fallback screenshot capture from a visible local window title."""
+    if not PYAUTOGUI_AVAILABLE:
+        raise RuntimeError("PyAutoGUI not available for local window capture fallback.")
+
+    import pygetwindow as gw
+
+    windows = gw.getAllWindows()
+    keywords = [k.lower() for k in title_keywords if k]
+    matches = []
+    for w in windows:
+        title = (w.title or "").strip()
+        if not title:
+            continue
+        lower = title.lower()
+        if any(k in lower for k in keywords):
+            matches.append(w)
+
+    if not matches:
+        raise RuntimeError("No matching local QEMU window found for fallback capture.")
+
+    target = matches[0]
+    left, top, width, height = target.left, target.top, target.width, target.height
+    if width <= 0 or height <= 0:
+        raise RuntimeError("Matched QEMU window has invalid dimensions for capture.")
+    return printscreen(region=(int(left), int(top), int(width), int(height)))
+
+
 def parse_screen_position(text):
     # Define a regular expression pattern
     pattern = r"\(L(-?\d+), T(-?\d+), R(-?\d+), B(-?\d+)\)"
@@ -517,15 +545,28 @@ def lvgl_screenshot():
         vnc_host = data.get("vnc_host", "127.0.0.1")
         vnc_port = data.get("vnc_port", 5900)
         fb_device = data.get("fb_device", "/dev/fb0")
+        qemu_titles = data.get("qemu_window_titles", ["qemu", "qemu-system", "qemu-system-x86_64"])
 
         # Create a temporary file path
         temp_path = os.path.join(tempfile.gettempdir(), "lvgl_screenshot.png")
 
         # Capture screenshot using the LVGL backend
         if capture_method == "vnc":
-            img = ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
+            try:
+                img = ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
+            except Exception as vnc_error:
+                logger.warning(f"VNC capture failed, trying local QEMU window fallback: {vnc_error}")
+                try:
+                    fallback_b64 = capture_window_by_title_base64(qemu_titles)
+                    return jsonify({"screenshot": fallback_b64, "fallback": "local_qemu_window"})
+                except Exception as fallback_error:
+                    raise RuntimeError(
+                        f"{vnc_error} Also failed local QEMU window fallback: {fallback_error}"
+                    ) from fallback_error
         elif capture_method == "x11":
             img = ScreenshotBackend.capture_x11()
+        elif capture_method == "none":
+            return jsonify({"screenshot": ""})
         else:
             img = ScreenshotBackend.capture_framebuffer(fb_device)
 
