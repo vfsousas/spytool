@@ -17,7 +17,7 @@
             <div class="brand-mark">ST</div>
             <div class="brand-text">
                 <h1>SpyTool</h1>
-                <p>Windows + Browser UI Inspector</p>
+                <p>OpenCV + LVGL UI Inspector</p>
             </div>
         </div>
         <div class="status" id="status" data-type="ok">Ready</div>
@@ -25,14 +25,48 @@
 
     <section class="controls">
         <div class="control-group">
-            <label for="exampleDataList">Window</label>
-            <input list="datalistOptions" id="exampleDataList" placeholder="Type to search..." onchange="releaseInspectButton()">
-            <datalist id="datalistOptions">
-                {% for window in windows_list %}
-                <option value="{{ window }}">{{ window }}</option>
-                {% endfor %}
-            </datalist>
+            <label for="inspectorType">Inspector Type</label>
+            <select id="inspectorType" onchange="toggleInspector()">
+                <option value="opencv">OpenCV Inspector</option>
+                <option value="lvgl">LVGL Inspector</option>
+            </select>
         </div>
+
+        <!-- OpenCV Inspector Controls -->
+        <div id="opencvControls" class="opencv-controls">
+            <div class="control-group">
+                <label for="exampleDataList">Window</label>
+                <input list="datalistOptions" id="exampleDataList" placeholder="Type to search...">
+                <datalist id="datalistOptions">
+                    {% for window in windows_list %}
+                    <option value="{{ window }}">{{ window }}</option>
+                    {% endfor %}
+                </datalist>
+            </div>
+        </div>
+
+        <!-- LVGL Inspector Controls -->
+        <div id="lvglControls" class="lvgl-controls" style="display: none;">
+            <div class="control-group">
+                <label for="lvglCaptureMethod">Capture Method</label>
+                <select id="lvglCaptureMethod">
+                    <option value="vnc">VNC (QEMU/Linux)</option>
+                    <option value="x11">X11 (Linux Desktop)</option>
+                    <option value="framebuffer">Framebuffer</option>
+                </select>
+            </div>
+            <div id="vncSettings">
+                <div class="control-group">
+                    <label for="vncHost">VNC Host</label>
+                    <input type="text" id="vncHost" value="127.0.0.1">
+                </div>
+                <div class="control-group">
+                    <label for="vncPort">VNC Port</label>
+                    <input type="number" id="vncPort" value="5900">
+                </div>
+            </div>
+        </div>
+
         <div class="control-actions">
             <button id="btn_inspect" class="btn primary" onclick="inspect()" type="button" disabled>Inspect</button>
             <button class="btn ghost" type="button" onclick="window.location.reload()">Reload List</button>
@@ -41,7 +75,7 @@
 
     <div id="loadingIndicator" class="loading-indicator" style="display: none;">
         <div class="spinner"></div>
-        <span>Capturing window and UI tree…</span>
+        <span>Detecting UI elements with OpenCV…</span>
     </div>
 
     <main class="workspace" id="container">

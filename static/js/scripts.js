@@ -5,11 +5,12 @@ const state = {
     scaleX: 1,
     scaleY: 1,
     windowRect: null,
+    inspectorType: "opencv", // Changed default to opencv
 };
 
 function formatTime(milliseconds) {
     var seconds = Math.floor(milliseconds / 1000);
-    var hours = Math.floor(seconds / 3600);
+    var hours = Math.floor((seconds / 3600));
     var minutes = Math.floor((seconds % 3600) / 60);
     var remainingSeconds = seconds % 60;
     return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
@@ -42,14 +43,36 @@ function getScale() {
     return { scaleX: scaleX || 1, scaleY: scaleY || 1 };
 }
 
+function toggleInspector() {
+    var inspectorType = document.getElementById("inspectorType").value;
+    state.inspectorType = inspectorType;
+    
+    if (inspectorType === "opencv") {
+        document.getElementById("opencvControls").style.display = "block";
+        document.getElementById("lvglControls").style.display = "none";
+    } else {
+        document.getElementById("opencvControls").style.display = "none";
+        document.getElementById("lvglControls").style.display = "block";
+    }
+    document.getElementById("btn_inspect").disabled = false;
+}
+
 function inspect() {
+    if (state.inspectorType === "opencv") {
+        inspectOpenCV();
+    } else {
+        inspectLVGL();
+    }
+}
+
+function inspectOpenCV() {
     var selectedValue = document.getElementById("exampleDataList").value.trim();
     if (!selectedValue) {
         setStatus("Select a window before inspecting.", "warn");
         return;
     }
     setLoading(true);
-    setStatus("Inspecting window…", "info");
+    setStatus("Inspecting window with OpenCV…", "info");
     var startTime = performance.now();
     var success = false;
 
@@ -85,6 +108,94 @@ function inspect() {
                 setStatus(`Ready · ${formattedElapsedTime}`, "ok");
             }
         });
+}
+
+function inspectLVGL() {
+    setLoading(true);
+    setStatus("Inspecting LVGL application…", "info");
+    var startTime = performance.now();
+    var success = false;
+    
+    // Get capture method and settings
+    var captureMethod = document.getElementById("lvglCaptureMethod").value;
+    var vncHost = document.getElementById("vncHost").value;
+    var vncPort = document.getElementById("vncPort").value;
+    
+    // First capture a screenshot using LVGL backend
+    fetch('/lvgl/screenshot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            capture: captureMethod,
+            vnc_host: vncHost,
+            vnc_port: parseInt(vncPort)
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || "Screenshot failed");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Display the captured screenshot
+        var imgElement = document.getElementById("screenshot");
+        imgElement.src = `data:image/png;base64, ${data.screenshot}`;
+        var container = document.getElementById('container');
+        container.style.display = 'grid';
+        
+        // Then get the LVGL tree structure
+        return fetch('/lvgl/inspect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                element: "root",
+                max_depth: null,
+                ip: "127.0.0.1",  // Placeholder IP
+                port: 8080,       // Placeholder port
+                capture: "none",
+                vnc_host: vncHost,
+                vnc_port: parseInt(vncPort),
+                snapshot_path: "/tmp/lvgl_snapshot.png",
+                deep_scan: true,
+                scan_hidden: true,
+                scan_extra_roots: true
+            })
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.error || "LVGL inspection failed");
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Update state with the tree data
+        state.tree = data.tree;
+        localStorage.setItem('inspect', JSON.stringify(data.tree));
+        displayTree(data.tree);
+        success = true;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        setStatus(error.message || "LVGL Inspection failed", "error");
+    }).finally(() => {
+        setLoading(false);
+        var endTime = performance.now();
+        var elapsedTime = endTime - startTime;
+        var formattedElapsedTime = formatTime(elapsedTime);
+        if (success) {
+            setStatus(`Ready · ${formattedElapsedTime}`, "ok");
+        }
+    });
 }
 
 function displayTree(tree) {
@@ -240,6 +351,10 @@ window.onload = function () {
     var container = document.getElementById('container');
     container.style.display = 'none';
     setStatus("Ready", "ok");
+    
+    // Initialize with OpenCV inspector as default
+    document.getElementById("opencvControls").style.display = "block";
+    document.getElementById("lvglControls").style.display = "none";
 };
 
 function releaseInspectButton() {

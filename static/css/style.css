@@ -94,8 +94,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 18px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     gap: 24px;
     box-shadow: var(--shadow);
 }
@@ -104,7 +103,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
+    width: 100%;
 }
 
 .control-group label {
@@ -114,6 +113,7 @@ body {
     color: var(--muted);
 }
 
+.control-group select,
 .control-group input {
     background: var(--panel-light);
     border: 1px solid var(--border);
@@ -126,6 +126,7 @@ body {
 .control-actions {
     display: flex;
     gap: 12px;
+    margin-top: 10px;
 }
 
 .btn {
