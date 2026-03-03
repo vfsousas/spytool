@@ -137,7 +137,7 @@ function inspectOpenCV() {
 
 function inspectLVGL() {
     setLoading(true);
-    setStatus("Inspecting LVGL application…", "info");
+    setStatus("Inspecting LVGL application via Client(ip, port)…", "info");
     var startTime = performance.now();
     var success = false;
     
@@ -145,6 +145,8 @@ function inspectLVGL() {
     var captureMethod = document.getElementById("lvglCaptureMethod").value;
     var vncHost = document.getElementById("vncHost").value;
     var vncPort = document.getElementById("vncPort").value;
+    var lvglIp = document.getElementById("lvglIp").value.trim() || "127.0.0.1";
+    var lvglPort = parseInt(document.getElementById("lvglPort").value, 10) || 8080;
     
     // First capture a screenshot using LVGL backend
     fetch('/lvgl/screenshot', {
@@ -187,8 +189,8 @@ function inspectLVGL() {
             body: JSON.stringify({
                 element: "root",
                 max_depth: null,
-                ip: "127.0.0.1",  // Placeholder IP
-                port: 8080,       // Placeholder port
+                ip: lvglIp,
+                port: lvglPort,
                 capture: "none",
                 vnc_host: vncHost,
                 vnc_port: parseInt(vncPort),
