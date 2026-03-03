@@ -158,13 +158,36 @@ def capture_linux_window_by_title_base64(title_keywords):
     if not window_ids:
         raise RuntimeError("No matching Linux QEMU window found via xdotool.")
 
-    target_id = window_ids[0]
+    # Prefer direct window capture via X11 window id to avoid monitor-scaling issues.
+    for target_id in reversed(window_ids):
+        try:
+            xwd_proc = subprocess.run(
+                ["xwd", "-id", target_id, "-silent"],
+                capture_output=True,
+                timeout=5,
+            )
+            if xwd_proc.returncode != 0 or not xwd_proc.stdout:
+                continue
+            convert_proc = subprocess.run(
+                ["convert", "xwd:-", "png:-"],
+                input=xwd_proc.stdout,
+                capture_output=True,
+                timeout=5,
+            )
+            if convert_proc.returncode == 0 and convert_proc.stdout:
+                return base64.b64encode(convert_proc.stdout).decode("utf-8")
+        except FileNotFoundError:
+            break
+        except Exception:
+            continue
+
+    # Last resort: geometry-based crop.
     try:
-        info = subprocess.run(["xwininfo", "-id", target_id], capture_output=True, text=True)
+        info = subprocess.run(["xwininfo", "-id", window_ids[-1]], capture_output=True, text=True)
     except FileNotFoundError as exc:
-        raise RuntimeError("xwininfo not installed for Linux window geometry.") from exc
+        raise RuntimeError("xwd/convert not installed and xwininfo unavailable for fallback.") from exc
     if info.returncode != 0:
-        raise RuntimeError(f"xwininfo failed for window id {target_id}.")
+        raise RuntimeError("Failed to capture Linux QEMU window by id.")
 
     x = y = w = h = None
     for line in info.stdout.splitlines():
@@ -177,11 +200,8 @@ def capture_linux_window_by_title_base64(title_keywords):
             w = int(line.split(":")[1].strip())
         elif line.startswith("Height:"):
             h = int(line.split(":")[1].strip())
-
-    if x is None or y is None or w is None or h is None:
+    if x is None or y is None or w is None or h is None or w <= 0 or h <= 0:
         raise RuntimeError("Failed to resolve Linux window geometry from xwininfo.")
-    if w <= 0 or h <= 0:
-        raise RuntimeError("Resolved Linux QEMU window has invalid dimensions.")
     return printscreen(region=(x, y, w, h))
 
 
