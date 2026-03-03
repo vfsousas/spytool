@@ -7,8 +7,6 @@ from flask import Flask, render_template, request, jsonify
 import os
 import webbrowser
 import re
-import sys
-from io import StringIO
 import logging
 from parse_pywinauto import Parser
 
@@ -456,7 +454,7 @@ def inspect(window):
 
 @app.route("/lvgl/inspect", methods=["POST"])
 def lvgl_inspect():
-    """Route to perform LVGL inspection and return the application tree."""
+    """Route to perform LVGL inspection using pylvgl_selectors-based locators."""
     if not LVGL_AVAILABLE:
         return jsonify({"error": "LVGL Inspector not available. Required packages not installed."}), 500
 
@@ -471,92 +469,33 @@ def lvgl_inspect():
         vnc_host = data.get("vnc_host", "127.0.0.1")
         vnc_port = data.get("vnc_port", 5900)
         snapshot_path = data.get("snapshot_path", "/tmp/lvgl_snapshot.png")
+        topic = data.get("topic", "receive-test-queries")
+        username = data.get("username", "test-client")
+        password = data.get("password", "test-client")
         deep_scan = data.get("deep_scan", True)
         scan_hidden = data.get("scan_hidden", True)
         scan_extra_roots = data.get("scan_extra_roots", True)
 
-        # Capture original stdout to catch printed output from LVGL inspector
-        old_stdout = sys.stdout
-        sys.stdout = captured_output = StringIO()
-
-        try:
-            # Create an instance of the LVGL inspector
-            inspector = LVGLInspector()
-            # Call the method that prints the tree
-            tree_data = inspector.lvgl_application_structure(
-                element=element,
-                max_depth=max_depth,
-                show_props=True,
-                show_text=True,
-                ip=ip,
-                port=port,
-                capture=capture,
-                vnc_host=vnc_host,
-                vnc_port=vnc_port,
-                snapshot_path=snapshot_path,
-                deep_scan=deep_scan,
-                scan_hidden=scan_hidden,
-                scan_extra_roots=scan_extra_roots
-            )
-        finally:
-            # Restore original stdout
-            sys.stdout = old_stdout
-
-        # Get the printed output
-        output_str = captured_output.getvalue()
-
-        # For now, return a placeholder tree structure since we'd need to modify the 
-        # LVGL inspector to return structured data instead of just printing
-        # In a real implementation, the LVGL inspector would need to be modified to return
-        # the tree structure instead of just printing it
-        placeholder_tree = {
-            "idx": 0,
-            "parent_idx": None,
-            "rect": {"Left": 0, "Top": 0, "Right": 800, "Bottom": 480},
-            "center": {"X": 400, "Y": 240},
-            "attributes": {
-                "title": "LVGL Root Screen",
-                "auto_id": "",
-                "control_type": "LVGL Screen",
-                "found_index": 0,
-                "parent": {}
-            },
-            "node_id": "lvgl_root_001",
-            "children": [
-                {
-                    "idx": 1,
-                    "parent_idx": 0,
-                    "rect": {"Left": 50, "Top": 50, "Right": 200, "Bottom": 100},
-                    "center": {"X": 125, "Y": 75},
-                    "attributes": {
-                        "title": "Main Button",
-                        "auto_id": "",
-                        "control_type": "LVGL Button",
-                        "found_index": 0,
-                        "parent": {"title": "LVGL Root Screen"}
-                    },
-                    "node_id": "lvgl_btn_001",
-                    "children": []
-                },
-                {
-                    "idx": 2,
-                    "parent_idx": 0,
-                    "rect": {"Left": 200, "Top": 150, "Right": 600, "Bottom": 200},
-                    "center": {"X": 400, "Y": 175},
-                    "attributes": {
-                        "title": "Label Widget",
-                        "auto_id": "",
-                        "control_type": "LVGL Label",
-                        "found_index": 0,
-                        "parent": {"title": "LVGL Root Screen"}
-                    },
-                    "node_id": "lvgl_lbl_001",
-                    "children": []
-                }
-            ]
-        }
-
-        return jsonify({"tree": placeholder_tree, "output": output_str})
+        inspector = LVGLInspector()
+        tree_data = inspector.lvgl_application_structure(
+            element=element,
+            max_depth=max_depth,
+            show_props=True,
+            show_text=True,
+            ip=ip,
+            port=port,
+            topic=topic,
+            username=username,
+            password=password,
+            capture=capture,
+            vnc_host=vnc_host,
+            vnc_port=vnc_port,
+            snapshot_path=snapshot_path,
+            deep_scan=deep_scan,
+            scan_hidden=scan_hidden,
+            scan_extra_roots=scan_extra_roots,
+        )
+        return jsonify({"tree": tree_data, "output": "", "connection": {"topic": topic, "username": username}})
     except Exception as e:
         logger.error(f"Error in LVGL inspection: {str(e)}")
         return jsonify({"error": str(e)}), 500

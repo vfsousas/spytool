@@ -4,3 +4,8 @@ pygame
 pyperclip
 Flask
 pygetwindow
+opencv-python
+numpy
+pyautogui
+paho-mqtt
+flatbuffers
