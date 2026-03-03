@@ -148,38 +148,45 @@ function inspectLVGL() {
     var lvglIp = document.getElementById("lvglIp").value.trim() || "127.0.0.1";
     var lvglPort = parseInt(document.getElementById("lvglPort").value, 10) || 8080;
     
-    // First capture a screenshot using LVGL backend
-    fetch('/lvgl/screenshot', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            capture: captureMethod,
-            vnc_host: vncHost,
-            vnc_port: parseInt(vncPort)
-        })
-    })
+    var screenshotPromise;
+    if (captureMethod === "none") {
+        screenshotPromise = Promise.resolve({ screenshot: null });
+    } else {
+        screenshotPromise = fetch('/lvgl/screenshot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                capture: captureMethod,
+                vnc_host: vncHost,
+                vnc_port: parseInt(vncPort)
+            })
+        }).then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
+                });
+            }
+            return response.json();
+        });
+    }
+
+    // First optionally capture screenshot using LVGL backend
+    screenshotPromise
     .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            });
+        if (response && response.error) {
+            throw new Error(response.error);
         }
-        return response.json();
-    })
-    .then(data => {
-        // Check if the response contains an error
-        if (data.error) {
-            throw new Error(data.error);
+
+        if (response && response.screenshot) {
+            var imgElement = document.getElementById("screenshot");
+            imgElement.src = `data:image/png;base64, ${response.screenshot}`;
         }
-        
-        // Display the captured screenshot
-        var imgElement = document.getElementById("screenshot");
-        imgElement.src = `data:image/png;base64, ${data.screenshot}`;
+
         var container = document.getElementById('container');
         container.style.display = 'grid';
-        
+
         // Then get the LVGL tree structure
         return fetch('/lvgl/inspect', {
             method: 'POST',

@@ -102,27 +102,43 @@ class ScreenshotBackend:
     def capture_vnc(host="127.0.0.1", port=5900, password="") -> np.ndarray:
         tmp = "/tmp/_lvgl_vnc_cap.png"
         pwd_flag = ["-passwd", password] if password else []
-        result = subprocess.run(["vncsnapshot"] + pwd_flag + [f"{host}:{port - 5900}", tmp], capture_output=True)
-        if result.returncode == 0 and os.path.exists(tmp):
-            image = cv2.imread(tmp)
-            os.remove(tmp)
-            if image is None:
-                raise RuntimeError("Failed to read VNC snapshot image.")
-            return image
+        vncsnapshot_error = None
+        try:
+            result = subprocess.run(
+                ["vncsnapshot"] + pwd_flag + [f"{host}:{port - 5900}", tmp],
+                capture_output=True,
+            )
+            if result.returncode == 0 and os.path.exists(tmp):
+                image = cv2.imread(tmp)
+                os.remove(tmp)
+                if image is None:
+                    raise RuntimeError("Failed to read VNC snapshot image.")
+                return image
+            vncsnapshot_error = result.stderr.decode(errors="ignore")
+        except FileNotFoundError:
+            vncsnapshot_error = "vncsnapshot not installed"
 
-        result = subprocess.run(
-            ["ffmpeg", "-y", "-f", "vnc", "-i", f"{host}:{port}", "-frames:v", "1", "-f", "image2", tmp],
-            capture_output=True,
-            timeout=10,
+        ffmpeg_error = None
+        try:
+            result = subprocess.run(
+                ["ffmpeg", "-y", "-f", "vnc", "-i", f"{host}:{port}", "-frames:v", "1", "-f", "image2", tmp],
+                capture_output=True,
+                timeout=10,
+            )
+            if result.returncode == 0 and os.path.exists(tmp):
+                image = cv2.imread(tmp)
+                os.remove(tmp)
+                if image is None:
+                    raise RuntimeError("Failed to read ffmpeg VNC capture image.")
+                return image
+            ffmpeg_error = result.stderr.decode(errors="ignore")
+        except FileNotFoundError:
+            ffmpeg_error = "ffmpeg not installed"
+
+        raise RuntimeError(
+            f"VNC capture failed (vncsnapshot: {vncsnapshot_error}; ffmpeg: {ffmpeg_error}). "
+            "Install vncsnapshot/ffmpeg or select capture method 'none'."
         )
-        if result.returncode == 0 and os.path.exists(tmp):
-            image = cv2.imread(tmp)
-            os.remove(tmp)
-            if image is None:
-                raise RuntimeError("Failed to read ffmpeg VNC capture image.")
-            return image
-
-        raise RuntimeError("VNC capture failed. Install vncsnapshot or ffmpeg with VNC support.")
 
     @staticmethod
     def capture_framebuffer(device="/dev/fb0", width=800, height=480) -> np.ndarray:
