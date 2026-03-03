@@ -145,7 +145,7 @@ function inspectLVGL() {
     var captureMethod = document.getElementById("lvglCaptureMethod").value;
     var vncHost = document.getElementById("vncHost").value;
     var vncPort = document.getElementById("vncPort").value;
-    var lvglIp = document.getElementById("lvglIp").value.trim() || "127.0.0.1";
+    var lvglIp = document.getElementById("lvglIp").value.trim() || "192.168.0.10";
     var lvglPort = parseInt(document.getElementById("lvglPort").value, 10) || 8080;
     
     var screenshotPromise;

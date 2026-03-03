@@ -108,28 +108,28 @@ def capture_window_by_title_base64(title_keywords):
 
     if os.name != "nt":
         raise RuntimeError("Window-title fallback is only supported on Windows.")
+    else:
+        import pygetwindow as gw
 
-    import pygetwindow as gw
+        windows = gw.getAllWindows()
+        keywords = [k.lower() for k in title_keywords if k]
+        matches = []
+        for w in windows:
+            title = (w.title or "").strip()
+            if not title:
+                continue
+            lower = title.lower()
+            if any(k in lower for k in keywords):
+                matches.append(w)
 
-    windows = gw.getAllWindows()
-    keywords = [k.lower() for k in title_keywords if k]
-    matches = []
-    for w in windows:
-        title = (w.title or "").strip()
-        if not title:
-            continue
-        lower = title.lower()
-        if any(k in lower for k in keywords):
-            matches.append(w)
+        if not matches:
+            raise RuntimeError("No matching local QEMU window found for fallback capture.")
 
-    if not matches:
-        raise RuntimeError("No matching local QEMU window found for fallback capture.")
-
-    target = matches[0]
-    left, top, width, height = target.left, target.top, target.width, target.height
-    if width <= 0 or height <= 0:
-        raise RuntimeError("Matched QEMU window has invalid dimensions for capture.")
-    return printscreen(region=(int(left), int(top), int(width), int(height)))
+        target = matches[0]
+        left, top, width, height = target.left, target.top, target.width, target.height
+        if width <= 0 or height <= 0:
+            raise RuntimeError("Matched QEMU window has invalid dimensions for capture.")
+        return printscreen(region=(int(left), int(top), int(width), int(height)))
 
 
 def capture_linux_window_by_title_base64(title_keywords):
@@ -597,10 +597,10 @@ def lvgl_inspect():
         data = request.json
         element = data.get("element", "root")
         max_depth = data.get("max_depth", None)
-        ip = data.get("ip", "127.0.0.1")
+        ip = data.get("ip", "192.168.0.10")
         port = data.get("port", 8080)
         capture = data.get("capture", "none")
-        vnc_host = data.get("vnc_host", "127.0.0.1")
+        vnc_host = data.get("vnc_host", "192.168.0.10")
         vnc_port = data.get("vnc_port", 5900)
         snapshot_path = data.get("snapshot_path", "/tmp/lvgl_snapshot.png")
         topic = data.get("topic", "receive-test-queries")
@@ -648,7 +648,7 @@ def lvgl_screenshot():
         # Get capture method from request
         data = request.json
         capture_method = data.get("capture", "vnc")  # default to vnc
-        vnc_host = data.get("vnc_host", "127.0.0.1")
+        vnc_host = data.get("vnc_host", "192.168.0.10")
         vnc_port = data.get("vnc_port", 5900)
         fb_device = data.get("fb_device", "/dev/fb0")
         qemu_titles = data.get("qemu_window_titles", ["qemu", "qemu-system", "qemu-system-x86_64"])
@@ -726,4 +726,4 @@ if __name__ == "__main__":
     ]
 
     # Run the Flask app
-    app.run(debug=True, port=5050)
+    app.run(debug=True, host='0.0.0.0', port=5050)
