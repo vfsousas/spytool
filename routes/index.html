@@ -27,7 +27,7 @@
         <div class="control-group">
             <label for="inspectorType">Inspector Type</label>
             <select id="inspectorType" onchange="toggleInspector()">
-                <option value="opencv">OpenCV Inspector</option>
+                <option value="opencv">Desktop Inspector</option>
                 <option value="lvgl">LVGL Inspector</option>
             </select>
         </div>
@@ -83,6 +83,10 @@
             <div class="panel-header">
                 <h2>UI Tree</h2>
                 <p>Hover a node to preview. Click to lock selection.</p>
+            </div>
+            <div class="tree-tools">
+                <button class="btn ghost tree-tool-btn" type="button" onclick="expandAllTree()">Expand all</button>
+                <button class="btn ghost tree-tool-btn" type="button" onclick="collapseAllTree()">Collapse all</button>
             </div>
             <div id="tree-menu" class="tree-menu"></div>
         </section>

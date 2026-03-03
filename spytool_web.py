@@ -3,15 +3,36 @@ import io
 import json
 import tempfile
 from time import sleep
-from flask import Flask, render_template, request
-import pyautogui
+from flask import Flask, render_template, request, jsonify
 import os
 import webbrowser
-import cv2
-import numpy as np
 import re
 import sys
 from io import StringIO
+import logging
+from parse_pywinauto import Parser
+
+try:
+    import cv2
+    import numpy as np
+    OPENCV_AVAILABLE = True
+except ImportError:
+    cv2 = None
+    np = None
+    OPENCV_AVAILABLE = False
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Try to import pyautogui and handle if it fails
+try:
+    import pyautogui
+    PYAUTOGUI_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"PyAutoGUI not available: {str(e)}")
+    PYAUTOGUI_AVAILABLE = False
+    pyautogui = None
 
 # Import LVGL inspector classes conditionally to avoid errors if dependencies aren't installed
 try:
@@ -21,16 +42,20 @@ except ImportError:
     LVGLInspector = None
     ScreenshotBackend = None
     LVGL_AVAILABLE = False
-    print("Warning: LVGL inspector not available. Some features will be limited.")
+    logger.warning("LVGL inspector not available. Some features will be limited.")
 
 app = Flask(__name__, template_folder="routes")
 
 
 @app.route("/")
 def index():
-    windows_list = getWindows()
-    # Render the template with the base64-encoded image
-    return render_template("index.html", windows_list=windows_list)
+    try:
+        windows_list = getWindows()
+        # Render the template with the base64-encoded image
+        return render_template("index.html", windows_list=windows_list)
+    except Exception as e:
+        logger.error(f"Error in index route: {str(e)}")
+        return jsonify({"error": f"Failed to load index: {str(e)}"}), 500
 
 
 def open_browser():
@@ -44,27 +69,37 @@ def getWindows():
     Returns:
         [type]: List with all windows opened
     """
-    # Using OpenCV to get window information instead of pywinauto
-    # For now, return a placeholder list - in a real implementation
-    # this would interface with the OS to get actual window titles
     try:
         import pygetwindow as gw
         windows = gw.getAllWindows()
-        window_titles = [w.title for w in windows if w.title.strip() != ""]
+        # Filter out empty titles and add some common system windows
+        window_titles = [w.title for w in windows if w.title.strip() != "" and not w.title.startswith("Program Manager")]
         return window_titles
     except ImportError:
+        logger.error("pygetwindow not available")
         # If pygetwindow isn't available, return an empty list
+        return []
+    except Exception as e:
+        logger.error(f"Error getting windows: {str(e)}")
         return []
 
 
 def printscreen(region=None):
-    # Take a screenshot of the full screen or a region (left, top, width, height)
-    screenshot = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
+    """Take a screenshot of the full screen or a region (left, top, width, height)"""
+    if not PYAUTOGUI_AVAILABLE:
+        logger.error("PyAutoGUI not available, cannot take screenshot")
+        raise ImportError("PyAutoGUI is not available. Please install Pillow and pyscreeze.")
 
-    # Convert the image to base64
-    img_buffer = io.BytesIO()
-    screenshot.save(img_buffer, format="PNG")
-    return base64.b64encode(img_buffer.getvalue()).decode("utf-8")
+    try:
+        screenshot = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
+
+        # Convert the image to base64
+        img_buffer = io.BytesIO()
+        screenshot.save(img_buffer, format="PNG")
+        return base64.b64encode(img_buffer.getvalue()).decode("utf-8")
+    except Exception as e:
+        logger.error(f"Error taking screenshot: {str(e)}")
+        raise
 
 
 def parse_screen_position(text):
@@ -205,12 +240,20 @@ def find_node_by_idx(node, target_idx):
 
 @app.route("/element/<idx>", methods=["GET"])
 def element(idx):
-    temp_directory = tempfile.gettempdir()
-    temp_file = os.path.join(temp_directory, "parsed_opencv.json")  # Changed from parsed_pywinauto.json
-    with open(temp_file, "r") as file:
-        data = json.load(file)
-    node = find_node_by_idx(data, int(idx))
-    return node
+    try:
+        temp_directory = tempfile.gettempdir()
+        temp_file = os.path.join(temp_directory, "parsed_pywinauto.json")
+        if not os.path.exists(temp_file):
+            temp_file = os.path.join(temp_directory, "parsed_opencv.json")
+        with open(temp_file, "r") as file:
+            data = json.load(file)
+        node = find_node_by_idx(data, int(idx))
+        return jsonify(node)
+    except FileNotFoundError:
+        return jsonify({"error": "Parsed file not found"}), 404
+    except Exception as e:
+        logger.error(f"Error retrieving element: {str(e)}")
+        return jsonify({"error": f"Failed to retrieve element: {str(e)}"}), 500
 
 
 def detect_ui_elements_cv(image_data):
@@ -219,137 +262,192 @@ def detect_ui_elements_cv(image_data):
     This is a simplified implementation - a full implementation would include
     more sophisticated detection algorithms
     """
-    # Decode base64 image if needed, or accept numpy array
-    if isinstance(image_data, str):
-        # If image_data is base64 string
-        img_bytes = base64.b64decode(image_data)
-        img_np = np.frombuffer(img_bytes, dtype=np.uint8)
-        img = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
-    else:
-        img = image_data
+    try:
+        if not OPENCV_AVAILABLE:
+            raise ImportError("OpenCV is not available.")
+        # Decode base64 image if needed, or accept numpy array
+        if isinstance(image_data, str):
+            # If image_data is base64 string
+            img_bytes = base64.b64decode(image_data)
+            img_np = np.frombuffer(img_bytes, dtype=np.uint8)
+            img = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
+        else:
+            img = image_data
 
-    # Convert to grayscale for processing
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Convert to grayscale for processing
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # Detect edges using Canny
-    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+        # Apply Gaussian blur to reduce noise
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Find contours (potential UI elements)
-    contours, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Detect edges using Canny
+        edges = cv2.Canny(blurred, 50, 150, apertureSize=3)
 
-    elements = []
-    for i, contour in enumerate(contours):
-        # Filter out very small contours
-        area = cv2.contourArea(contour)
-        if area < 100:  # Minimum area threshold
-            continue
+        # Alternative approach: use threshold to find shapes
+        _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
+        
+        # Combine edges and threshold
+        combined = cv2.bitwise_or(edges, thresh)
 
-        # Get bounding rectangle for the contour
-        x, y, w, h = cv2.boundingRect(contour)
+        # Find contours (potential UI elements)
+        contours, hierarchy = cv2.findContours(combined, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Calculate center point
-        center_x = x + w // 2
-        center_y = y + h // 2
+        elements = []
+        for i, contour in enumerate(contours):
+            # Filter out very small contours
+            area = cv2.contourArea(contour)
+            if area < 100:  # Minimum area threshold
+                continue
 
-        # Create an element representation
-        element = {
-            "idx": i,
-            "parent_idx": None,  # We're not tracking parent-child relationships in this simple implementation
+            # Get bounding rectangle for the contour
+            x, y, w, h = cv2.boundingRect(contour)
+
+            # Calculate center point
+            center_x = x + w // 2
+            center_y = y + h // 2
+
+            # Create an element representation
+            element = {
+                "idx": i,
+                "parent_idx": None,  # We're not tracking parent-child relationships in this simple implementation
+                "rect": {
+                    "Left": x,
+                    "Top": y,
+                    "Right": x + w,
+                    "Bottom": y + h
+                },
+                "center": {
+                    "X": center_x,
+                    "Y": center_y
+                },
+                "attributes": {
+                    "title": f"UI Element {i}",
+                    "auto_id": f"element_{i}",
+                    "control_type": "Generic Control",  # This could be determined based on shape/type
+                    "found_index": i,
+                    "parent": {}
+                },
+                "node_id": f"cv_elem_{i:04d}",
+                "children": []
+            }
+            elements.append(element)
+
+        # Create a root node containing all detected elements
+        root_node = {
+            "idx": 0,
+            "parent_idx": None,
             "rect": {
-                "Left": x,
-                "Top": y,
-                "Right": x + w,
-                "Bottom": y + h
+                "Left": 0,
+                "Top": 0,
+                "Right": img.shape[1],
+                "Bottom": img.shape[0]
             },
             "center": {
-                "X": center_x,
-                "Y": center_y
+                "X": img.shape[1] // 2,
+                "Y": img.shape[0] // 2
             },
             "attributes": {
-                "title": f"UI Element {i}",
-                "auto_id": f"element_{i}",
-                "control_type": "Generic Control",  # This could be determined based on shape/type
-                "found_index": i,
+                "title": "Detected UI Elements",
+                "auto_id": "root",
+                "control_type": "Root Container",
+                "found_index": 0,
                 "parent": {}
             },
-            "node_id": f"cv_elem_{i:04d}",
-            "children": []
+            "node_id": "cv_root_0000",
+            "children": elements
         }
-        elements.append(element)
 
-    # Create a root node containing all detected elements
-    root_node = {
-        "idx": 0,
-        "parent_idx": None,
-        "rect": {
-            "Left": 0,
-            "Top": 0,
-            "Right": img.shape[1],
-            "Bottom": img.shape[0]
-        },
-        "center": {
-            "X": img.shape[1] // 2,
-            "Y": img.shape[0] // 2
-        },
-        "attributes": {
-            "title": "Detected UI Elements",
-            "auto_id": "root",
-            "control_type": "Root Container",
-            "found_index": 0,
-            "parent": {}
-        },
-        "node_id": "cv_root_0000",
-        "children": elements
+        return root_node
+    except Exception as e:
+        logger.error(f"Error in UI element detection: {str(e)}")
+        raise
+
+
+def _rect_to_window_dict(rect):
+    return {
+        "left": int(rect.left),
+        "top": int(rect.top),
+        "right": int(rect.right),
+        "bottom": int(rect.bottom),
     }
 
-    return root_node
+
+def _encode_pil_image(image):
+    img_buffer = io.BytesIO()
+    image.save(img_buffer, format="PNG")
+    return base64.b64encode(img_buffer.getvalue()).decode("utf-8")
+
+
+def _inspect_with_pywinauto(window_title):
+    from pywinauto import Desktop
+    from pywinauto.application import Application
+
+    desktop = Desktop(backend="uia")
+    windows = desktop.windows()
+    matches = [w for w in windows if window_title.lower() in w.window_text().lower()]
+    if not matches:
+        raise ValueError("Window not found")
+
+    target_wrapper = matches[0]
+    handle = target_wrapper.handle
+    app = Application(backend="uia").connect(handle=handle, timeout=5)
+    target = app.window(handle=handle)
+
+    try:
+        if hasattr(target_wrapper, "is_minimized") and target_wrapper.is_minimized():
+            target_wrapper.restore()
+        target.set_focus()
+        sleep(0.3)
+    except Exception as exc:
+        logger.warning(f"Could not focus target window: {exc}")
+
+    temp_directory = tempfile.gettempdir()
+    dump_file = os.path.join(temp_directory, "pywinauto_dump.txt")
+    target.print_control_identifiers(filename=dump_file)
+    tree = Parser().parse(dump_file)
+    if not tree:
+        raise RuntimeError("No UI tree parsed from pywinauto output.")
+
+    screenshot_b64 = ""
+    try:
+        screenshot_b64 = _encode_pil_image(target.capture_as_image())
+    except Exception as exc:
+        logger.warning(f"Window capture failed, trying pyautogui: {exc}")
+        if PYAUTOGUI_AVAILABLE:
+            rect = target_wrapper.rectangle()
+            width = max(int(rect.width()), 1)
+            height = max(int(rect.height()), 1)
+            screenshot_b64 = printscreen(
+                region=(int(rect.left), int(rect.top), width, height)
+            )
+    if not screenshot_b64:
+        raise RuntimeError("Failed to capture screenshot for selected window only.")
+
+    window_rect = _rect_to_window_dict(target_wrapper.rectangle())
+    return tree, screenshot_b64, window_rect
 
 
 @app.route("/inspect/<path:window>", methods=["GET"])
 def inspect(window):
-    """Modified to use OpenCV for UI element detection instead of pywinauto"""
+    """Desktop inspection using pywinauto tree parsing and selected-window screenshot."""
     try:
-        import pygetwindow as gw
-        
-        # Get the target window
-        matching_windows = [w for w in gw.getAllWindows() if window in w.title]
-        if not matching_windows:
-            return {"error": "Window not found"}, 404
-        
-        target_window = matching_windows[0]
-        target_window.activate()
-        
-        # Get window position and size
-        left, top, width, height = target_window.left, target_window.top, target_window.width, target_window.height
-        
-        # Take a screenshot of the window
-        _printscreen = printscreen(region=(left, top, width, height))
-        
-        # Convert base64 screenshot to OpenCV format for processing
-        img_bytes = base64.b64decode(_printscreen)
-        img_np = np.frombuffer(img_bytes, dtype=np.uint8)
-        img = cv2.imdecode(img_np, cv2.IMREAD_COLOR)
-        
-        # Use OpenCV to detect UI elements
-        detected_tree = detect_ui_elements_cv(img)
-        
-        # Store the processed tree in a temporary file
+        detected_tree, screenshot_b64, window_rect = _inspect_with_pywinauto(window)
         temp_directory = tempfile.gettempdir()
-        temp_file = os.path.join(temp_directory, "parsed_opencv.json")
+        temp_file = os.path.join(temp_directory, "parsed_pywinauto.json")
         with open(temp_file, "w") as f:
             json.dump(detected_tree, f)
-        
-        ret = {
-            "printscreen": _printscreen,
-            "tree": detected_tree,
-            "window_rect": {"left": left, "top": top, "right": left + width, "bottom": top + height},
-        }
-        return ret
-    except ImportError:
-        # If pygetwindow isn't available, return an error
-        return {"error": "Required package not available for window detection"}, 500
-    except Exception as e:
-        return {"error": str(e)}, 500
+        return jsonify(
+            {
+                "printscreen": screenshot_b64,
+                "tree": detected_tree,
+                "window_rect": window_rect,
+            }
+        )
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as error:
+        logger.error(f"Desktop inspection failed: {error}")
+        return jsonify({"error": f"Inspection failed: {error}"}), 500
 
 
 # ──────────────────────────────────────────────
@@ -360,8 +458,8 @@ def inspect(window):
 def lvgl_inspect():
     """Route to perform LVGL inspection and return the application tree."""
     if not LVGL_AVAILABLE:
-        return {"error": "LVGL Inspector not available. Required packages not installed."}, 500
-    
+        return jsonify({"error": "LVGL Inspector not available. Required packages not installed."}), 500
+
     try:
         # Get parameters from the request
         data = request.json
@@ -376,11 +474,11 @@ def lvgl_inspect():
         deep_scan = data.get("deep_scan", True)
         scan_hidden = data.get("scan_hidden", True)
         scan_extra_roots = data.get("scan_extra_roots", True)
-        
+
         # Capture original stdout to catch printed output from LVGL inspector
         old_stdout = sys.stdout
         sys.stdout = captured_output = StringIO()
-        
+
         try:
             # Create an instance of the LVGL inspector
             inspector = LVGLInspector()
@@ -403,10 +501,10 @@ def lvgl_inspect():
         finally:
             # Restore original stdout
             sys.stdout = old_stdout
-            
+
         # Get the printed output
         output_str = captured_output.getvalue()
-        
+
         # For now, return a placeholder tree structure since we'd need to modify the 
         # LVGL inspector to return structured data instead of just printing
         # In a real implementation, the LVGL inspector would need to be modified to return
@@ -457,32 +555,33 @@ def lvgl_inspect():
                 }
             ]
         }
-        
-        return {"tree": placeholder_tree, "output": output_str}
+
+        return jsonify({"tree": placeholder_tree, "output": output_str})
     except Exception as e:
-        return {"error": str(e)}, 500
+        logger.error(f"Error in LVGL inspection: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/lvgl/screenshot", methods=["POST"])
 def lvgl_screenshot():
     """Route to capture a screenshot using LVGL's screenshot capabilities."""
     if not LVGL_AVAILABLE:
-        return {"error": "LVGL Inspector not available. Required packages not installed."}, 500
-    
+        return jsonify({"error": "LVGL Inspector not available. Required packages not installed."}), 500
+
     try:
         import tempfile
         import os
-        
+
         # Get capture method from request
         data = request.json
         capture_method = data.get("capture", "vnc")  # default to vnc
         vnc_host = data.get("vnc_host", "127.0.0.1")
         vnc_port = data.get("vnc_port", 5900)
         fb_device = data.get("fb_device", "/dev/fb0")
-        
+
         # Create a temporary file path
         temp_path = os.path.join(tempfile.gettempdir(), "lvgl_screenshot.png")
-        
+
         # Capture screenshot using the LVGL backend
         if capture_method == "vnc":
             img = ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
@@ -490,17 +589,26 @@ def lvgl_screenshot():
             img = ScreenshotBackend.capture_x11()
         else:
             img = ScreenshotBackend.capture_framebuffer(fb_device)
-            
+
         # Save to temp file
         ScreenshotBackend.save_annotated(img, temp_path)
-        
+
         # Read and encode the image
         with open(temp_path, "rb") as img_file:
             encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
-            
-        return {"screenshot": encoded_img}
+
+        return jsonify({"screenshot": encoded_img})
     except Exception as e:
-        return {"error": str(e)}, 500
+        logger.error(f"Error in LVGL screenshot: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+
+# Error handler to ensure all errors return JSON
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logger.error(f"Unhandled exception: {str(e)}")
+    # Return JSON error for all unhandled exceptions
+    return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
 
 if __name__ == "__main__":

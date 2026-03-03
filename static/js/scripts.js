@@ -6,7 +6,23 @@ const state = {
     scaleY: 1,
     windowRect: null,
     inspectorType: "opencv", // Changed default to opencv
+    treeExpandedState: {},
 };
+
+const TREE_EXPANDED_KEY = "tree_expanded_state";
+
+function loadExpandedState() {
+    try {
+        var raw = localStorage.getItem(TREE_EXPANDED_KEY);
+        state.treeExpandedState = raw ? JSON.parse(raw) : {};
+    } catch (error) {
+        state.treeExpandedState = {};
+    }
+}
+
+function saveExpandedState() {
+    localStorage.setItem(TREE_EXPANDED_KEY, JSON.stringify(state.treeExpandedState));
+}
 
 function formatTime(milliseconds) {
     var seconds = Math.floor(milliseconds / 1000);
@@ -69,6 +85,7 @@ function inspectOpenCV() {
     var selectedValue = document.getElementById("exampleDataList").value.trim();
     if (!selectedValue) {
         setStatus("Select a window before inspecting.", "warn");
+        document.getElementById("btn_inspect").disabled = false; // Re-enable button if no window selected
         return;
     }
     setLoading(true);
@@ -79,13 +96,19 @@ function inspectOpenCV() {
     fetch(`/inspect/${encodeURIComponent(selectedValue)}`)
         .then(response => {
             if (!response.ok) {
+                // Handle non-200 responses
                 return response.json().then(data => {
-                    throw new Error(data.error || "Inspect failed");
+                    throw new Error(data.error || `HTTP error! status: ${response.status}`);
                 });
             }
             return response.json();
         })
         .then(data => {
+            // Check if the response contains an error
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
             state.tree = data.tree;
             state.windowRect = data.window_rect || null;
             localStorage.setItem('inspect', JSON.stringify(data.tree));
@@ -98,7 +121,7 @@ function inspectOpenCV() {
         })
         .catch(error => {
             console.error('Error:', error);
-            setStatus(error.message || "Unexpected error", "error");
+            setStatus(error.message || "Unexpected error during inspection", "error");
         }).finally(() => {
             setLoading(false);
             var endTime = performance.now();
@@ -107,6 +130,8 @@ function inspectOpenCV() {
             if (success) {
                 setStatus(`Ready · ${formattedElapsedTime}`, "ok");
             }
+            // Always ensure the button is enabled after the operation completes
+            document.getElementById("btn_inspect").disabled = false;
         });
 }
 
@@ -136,12 +161,17 @@ function inspectLVGL() {
     .then(response => {
         if (!response.ok) {
             return response.json().then(data => {
-                throw new Error(data.error || "Screenshot failed");
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
             });
         }
         return response.json();
     })
     .then(data => {
+        // Check if the response contains an error
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
         // Display the captured screenshot
         var imgElement = document.getElementById("screenshot");
         imgElement.src = `data:image/png;base64, ${data.screenshot}`;
@@ -172,12 +202,17 @@ function inspectLVGL() {
     .then(response => {
         if (!response.ok) {
             return response.json().then(data => {
-                throw new Error(data.error || "LVGL inspection failed");
+                throw new Error(data.error || `HTTP error! status: ${response.status}`);
             });
         }
         return response.json();
     })
     .then(data => {
+        // Check if the response contains an error
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
         // Update state with the tree data
         state.tree = data.tree;
         localStorage.setItem('inspect', JSON.stringify(data.tree));
@@ -195,6 +230,8 @@ function inspectLVGL() {
         if (success) {
             setStatus(`Ready · ${formattedElapsedTime}`, "ok");
         }
+        // Always ensure the button is enabled after the operation completes
+        document.getElementById("btn_inspect").disabled = false;
     });
 }
 
@@ -202,20 +239,40 @@ function displayTree(tree) {
     var treeMenu = document.getElementById('tree-menu');
     treeMenu.innerHTML = '';
     state.nodeDictionary = {};
+    loadExpandedState();
     if (!tree || !tree.attributes) {
         treeMenu.innerHTML = '<p class="empty">No UI tree data available.</p>';
         return;
     }
     var treeList = document.createElement('ul');
     treeList.className = "tree-list";
-    createTreeMenu(tree, treeList);
+    createTreeMenu(tree, treeList, 0);
     treeMenu.appendChild(treeList);
 }
 
-function createTreeMenu(node, parentElement) {
+function createTreeMenu(node, parentElement, depth) {
     var listItem = document.createElement('li');
     listItem.className = "tree-item";
     listItem.dataset.nodeId = node.idx;
+    var expanded = depth === 0;
+    if (Object.prototype.hasOwnProperty.call(state.treeExpandedState, String(node.idx))) {
+        expanded = !!state.treeExpandedState[String(node.idx)];
+    }
+    listItem.dataset.expanded = expanded ? "true" : "false";
+
+    var row = document.createElement('div');
+    row.className = "tree-row";
+
+    var hasChildren = node.children && node.children.length > 0;
+    var toggle = document.createElement('button');
+    toggle.type = "button";
+    toggle.className = "tree-toggle";
+    toggle.textContent = hasChildren ? (expanded ? "▾" : "▸") : "";
+    toggle.disabled = !hasChildren;
+    toggle.setAttribute("aria-label", hasChildren ? "Toggle children" : "No children");
+    if (!hasChildren) {
+        toggle.classList.add("empty");
+    }
 
     var button = document.createElement('button');
     button.type = "button";
@@ -228,28 +285,69 @@ function createTreeMenu(node, parentElement) {
 
     button.addEventListener('click', function () {
         setActiveNode(node.idx);
-        toggleVisibility(listItem);
     });
 
-    listItem.appendChild(button);
-    listItem.appendChild(meta);
+    toggle.addEventListener('click', function () {
+        if (toggle.disabled) {
+            return;
+        }
+        toggleVisibility(listItem, toggle);
+    });
+
+    row.appendChild(toggle);
+    row.appendChild(button);
+    row.appendChild(meta);
+    listItem.appendChild(row);
     parentElement.appendChild(listItem);
     state.nodeDictionary[node.idx] = listItem;
 
-    if (node.children && node.children.length > 0) {
+    if (hasChildren) {
         var sublist = document.createElement('ul');
         sublist.className = "tree-children";
-        node.children.forEach(child => createTreeMenu(child, sublist));
+        sublist.style.display = expanded ? "block" : "none";
+        node.children.forEach(child => createTreeMenu(child, sublist, depth + 1));
         listItem.appendChild(sublist);
     }
 }
 
-function toggleVisibility(element) {
+function setNodeExpanded(element, expand) {
+    var sublist = element.querySelector('.tree-children');
+    if (!sublist) {
+        return;
+    }
+    sublist.style.display = expand ? 'block' : 'none';
+    element.dataset.expanded = expand ? "true" : "false";
+    var toggle = element.querySelector('.tree-toggle');
+    if (toggle && !toggle.disabled) {
+        toggle.textContent = expand ? "▾" : "▸";
+    }
+    state.treeExpandedState[String(element.dataset.nodeId)] = !!expand;
+    saveExpandedState();
+}
+
+function toggleVisibility(element, toggleControl) {
     var sublist = element.querySelector('.tree-children');
     if (sublist) {
         var isCollapsed = sublist.style.display === 'none';
-        sublist.style.display = isCollapsed ? 'block' : 'none';
+        setNodeExpanded(element, isCollapsed);
+        if (toggleControl) {
+            toggleControl.textContent = isCollapsed ? "▾" : "▸";
+        }
     }
+}
+
+function expandAllTree() {
+    var nodes = document.querySelectorAll('.tree-item');
+    nodes.forEach(function (node) {
+        setNodeExpanded(node, true);
+    });
+}
+
+function collapseAllTree() {
+    var nodes = document.querySelectorAll('.tree-item');
+    nodes.forEach(function (node, index) {
+        setNodeExpanded(node, index === 0);
+    });
 }
 
 function setActiveNode(nodeId) {
@@ -355,6 +453,9 @@ window.onload = function () {
     // Initialize with OpenCV inspector as default
     document.getElementById("opencvControls").style.display = "block";
     document.getElementById("lvglControls").style.display = "none";
+    
+    // Enable the inspect button by default
+    document.getElementById("btn_inspect").disabled = false;
 };
 
 function releaseInspectButton() {
