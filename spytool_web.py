@@ -650,6 +650,9 @@ def lvgl_screenshot():
         capture_method = data.get("capture", "vnc")  # default to vnc
         vnc_host = data.get("vnc_host", "127.0.0.1")
         vnc_port = data.get("vnc_port", 5900)
+        qemu_monitor_host = data.get("qemu_monitor_host", "127.0.0.1")
+        qemu_monitor_port = data.get("qemu_monitor_port", 55555)
+        qemu_qmp_socket = data.get("qemu_qmp_socket", "/tmp/qemu.sock")
         fb_device = data.get("fb_device", "/dev/fb0")
         qemu_titles = data.get("qemu_window_titles", ["qemu", "qemu-system", "qemu-system-x86_64"])
 
@@ -661,29 +664,39 @@ def lvgl_screenshot():
             try:
                 img = ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
             except Exception as vnc_error:
-                logger.warning(f"VNC capture failed, trying local QEMU window fallback: {vnc_error}")
+                logger.warning(f"VNC capture failed, trying QEMU monitor: {vnc_error}")
                 try:
+                    img = ScreenshotBackend.capture_qemu_monitor(
+                        host=qemu_monitor_host,
+                        port=qemu_monitor_port,
+                    )
+                    ScreenshotBackend.save_annotated(img, temp_path)
+                    with open(temp_path, "rb") as img_file:
+                        encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
+                    return jsonify({"screenshot": encoded_img, "fallback": "qemu_monitor"})
+                except Exception as monitor_error:
+                    logger.warning(f"QEMU monitor capture failed, trying QMP socket: {monitor_error}")
                     if os.name == "nt":
                         fallback_b64 = capture_window_by_title_base64(qemu_titles)
                     else:
-                        fallback_b64 = capture_linux_window_by_title_base64(qemu_titles)
+                        try:
+                            img = ScreenshotBackend.capture_qemu_qmp(socket_path=qemu_qmp_socket)
+                            ScreenshotBackend.save_annotated(img, temp_path)
+                            with open(temp_path, "rb") as img_file:
+                                encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
+                            return jsonify({"screenshot": encoded_img, "fallback": "qemu_qmp"})
+                        except Exception as qmp_error:
+                            try:
+                                fallback_b64 = capture_linux_window_by_title_base64(qemu_titles)
+                                return jsonify({"screenshot": fallback_b64, "fallback": "qemu_window_only"})
+                            except Exception as window_error:
+                                raise RuntimeError(
+                                    f"{vnc_error} Also failed monitor fallback: {monitor_error}. "
+                                    f"Also failed QMP fallback: {qmp_error}. "
+                                    f"Also failed QEMU-window fallback: {window_error}. "
+                                    "Install vncsnapshot, or expose monitor/qmp socket for screendump."
+                                ) from window_error
                     return jsonify({"screenshot": fallback_b64, "fallback": "qemu_window_only"})
-                except Exception as window_error:
-                    try:
-                        # As a strict fallback, crop from root screenshot if tools exist.
-                        img = ScreenshotBackend.capture_x11()
-                        ScreenshotBackend.save_annotated(img, temp_path)
-                        with open(temp_path, "rb") as img_file:
-                            encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
-                        raise RuntimeError(
-                            f"{vnc_error} Also failed QEMU-window fallback: {window_error}. "
-                            "Root X11 screenshot is available but not QEMU-window-only."
-                        )
-                    except Exception:
-                        raise RuntimeError(
-                            f"{vnc_error} Also failed QEMU-window fallback: {window_error}. "
-                            "Install vncsnapshot, or install xdotool + xwininfo for window-only fallback."
-                        ) from window_error
         elif capture_method == "x11":
             img = ScreenshotBackend.capture_x11()
         elif capture_method == "none":
