@@ -140,12 +140,41 @@ def capture_linux_window_by_title_base64(title_keywords):
         raise RuntimeError("Linux window fallback requested on Windows.")
 
     window_ids = []
+
+    # 1) Best-effort: resolve visible windows by qemu process PID.
+    qemu_pids = []
+    try:
+        pid_proc = subprocess.run(
+            ["pgrep", "-f", "qemu-system-aarch64"],
+            capture_output=True,
+            text=True,
+        )
+        if pid_proc.returncode == 0:
+            qemu_pids = [p.strip() for p in pid_proc.stdout.splitlines() if p.strip()]
+    except FileNotFoundError:
+        qemu_pids = []
+
+    for pid in qemu_pids:
+        try:
+            proc = subprocess.run(
+                ["xdotool", "search", "--onlyvisible", "--pid", pid],
+                capture_output=True,
+                text=True,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError("xdotool not installed for Linux window lookup.") from exc
+        if proc.returncode == 0:
+            ids = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+            if ids:
+                window_ids.extend(ids)
+
+    # 2) Fallback: resolve by title keywords.
     for keyword in title_keywords:
         if not keyword:
             continue
         try:
             proc = subprocess.run(
-                ["xdotool", "search", "--name", keyword],
+                ["xdotool", "search", "--onlyvisible", "--name", keyword],
                 capture_output=True,
                 text=True,
             )
