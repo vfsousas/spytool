@@ -105,6 +105,9 @@ def capture_window_by_title_base64(title_keywords):
     if not PYAUTOGUI_AVAILABLE:
         raise RuntimeError("PyAutoGUI not available for local window capture fallback.")
 
+    if os.name != "nt":
+        raise RuntimeError("Window-title fallback is only supported on Windows.")
+
     import pygetwindow as gw
 
     windows = gw.getAllWindows()
@@ -557,12 +560,24 @@ def lvgl_screenshot():
             except Exception as vnc_error:
                 logger.warning(f"VNC capture failed, trying local QEMU window fallback: {vnc_error}")
                 try:
-                    fallback_b64 = capture_window_by_title_base64(qemu_titles)
-                    return jsonify({"screenshot": fallback_b64, "fallback": "local_qemu_window"})
-                except Exception as fallback_error:
-                    raise RuntimeError(
-                        f"{vnc_error} Also failed local QEMU window fallback: {fallback_error}"
-                    ) from fallback_error
+                    # Linux-friendly fallback: capture current X11 desktop frame
+                    img = ScreenshotBackend.capture_x11()
+                    ScreenshotBackend.save_annotated(img, temp_path)
+                    with open(temp_path, "rb") as img_file:
+                        encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
+                    return jsonify({"screenshot": encoded_img, "fallback": "x11_root"})
+                except Exception as x11_error:
+                    try:
+                        fallback_b64 = capture_window_by_title_base64(qemu_titles)
+                        return jsonify({"screenshot": fallback_b64, "fallback": "local_qemu_window"})
+                    except Exception as window_error:
+                        if PYAUTOGUI_AVAILABLE:
+                            # Last fallback: full desktop screenshot
+                            return jsonify({"screenshot": printscreen(), "fallback": "desktop_full"})
+                        raise RuntimeError(
+                            f"{vnc_error} Also failed x11 fallback: {x11_error}. "
+                            f"Also failed window fallback: {window_error}"
+                        ) from window_error
         elif capture_method == "x11":
             img = ScreenshotBackend.capture_x11()
         elif capture_method == "none":

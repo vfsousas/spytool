@@ -185,6 +185,10 @@ function inspectLVGL() {
             imgElement.src = `data:image/png;base64, ${response.screenshot}`;
             if (response.fallback === "local_qemu_window") {
                 setStatus("VNC capture failed, showing local QEMU window screenshot.", "warn");
+            } else if (response.fallback === "x11_root") {
+                setStatus("VNC capture failed, showing X11 screenshot fallback.", "warn");
+            } else if (response.fallback === "desktop_full") {
+                setStatus("VNC capture failed, showing desktop screenshot fallback.", "warn");
             }
         }
 
