@@ -47,31 +47,57 @@
 
         <!-- LVGL Inspector Controls -->
         <div id="lvglControls" class="lvgl-controls" style="display: none;">
-            <div class="control-group">
-                <label for="lvglIp">LVGL IP</label>
-                <input type="text" id="lvglIp" value="127.0.0.1">
-            </div>
-            <div class="control-group">
-                <label for="lvglPort">LVGL Port</label>
-                <input type="number" id="lvglPort" value="8080">
-            </div>
-            <div class="control-group">
-                <label for="lvglCaptureMethod">Capture Method</label>
-                <select id="lvglCaptureMethod">
-                    <option value="vnc" selected>VNC (QEMU/Linux)</option>
-                    <option value="none">None (tree only)</option>
-                    <option value="x11">X11 (Linux Desktop)</option>
-                    <option value="framebuffer">Framebuffer</option>
-                </select>
-            </div>
-            <div id="vncSettings">
+            <div class="lvgl-row">
                 <div class="control-group">
-                    <label for="vncHost">VNC Host</label>
-                    <input type="text" id="vncHost" value="127.0.0.1">
+                    <label for="lvglIp">LVGL IP</label>
+                    <input type="text" id="lvglIp" value="192.168.0.10" placeholder="192.168.0.10">
                 </div>
                 <div class="control-group">
-                    <label for="vncPort">VNC Port</label>
-                    <input type="number" id="vncPort" value="5900">
+                    <label for="lvglPort">LVGL Port</label>
+                    <input type="number" id="lvglPort" value="8080">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label for="lvglCaptureMethod">Capture Method</label>
+                <select id="lvglCaptureMethod" onchange="onCaptureMethodChange()">
+                    <option value="qemu_monitor">QEMU Monitor TCP (recommended)</option>
+                    <option value="vnc">VNC</option>
+                    <option value="x11">X11 (Linux Desktop)</option>
+                    <option value="framebuffer">Framebuffer (/dev/fb0)</option>
+                    <option value="none">None (tree only)</option>
+                </select>
+            </div>
+
+            <!-- QEMU Monitor settings -->
+            <div id="qemuMonitorSettings" class="capture-settings">
+                <div class="lvgl-row">
+                    <div class="control-group">
+                        <label for="qemuMonitorHost">Monitor Host</label>
+                        <input type="text" id="qemuMonitorHost" value="127.0.0.1" placeholder="127.0.0.1">
+                    </div>
+                    <div class="control-group">
+                        <label for="qemuMonitorPort">Monitor Port</label>
+                        <input type="number" id="qemuMonitorPort" value="55555">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="qemuQmpSocket">QMP Socket (fallback)</label>
+                    <input type="text" id="qemuQmpSocket" value="/tmp/qemu.sock" placeholder="/tmp/qemu.sock">
+                </div>
+            </div>
+
+            <!-- VNC settings -->
+            <div id="vncSettings" class="capture-settings" style="display: none;">
+                <div class="lvgl-row">
+                    <div class="control-group">
+                        <label for="vncHost">VNC Host</label>
+                        <input type="text" id="vncHost" value="192.168.0.10">
+                    </div>
+                    <div class="control-group">
+                        <label for="vncPort">VNC Port</label>
+                        <input type="number" id="vncPort" value="5900">
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,10 +110,10 @@
 
     <div id="loadingIndicator" class="loading-indicator" style="display: none;">
         <div class="spinner"></div>
-        <span>Detecting UI elements with OpenCV…</span>
+        <span id="loadingText">Inspecting…</span>
     </div>
 
-    <main class="workspace" id="container">
+    <main class="workspace" id="container" style="display: none;">
         <section class="panel tree-panel">
             <div class="panel-header">
                 <h2>UI Tree</h2>
@@ -106,7 +132,10 @@
                 <p>Hold <span class="kbd">Ctrl</span> and move to snap the closest node.</p>
             </div>
             <div id="img_content" class="canvas">
-                <img id="screenshot" alt="Captured window screenshot" />
+                <img id="screenshot" alt="Captured QEMU screenshot" style="display:none;" />
+                <div id="screenshotPlaceholder" class="screenshot-placeholder">
+                    <span>No screenshot captured</span>
+                </div>
             </div>
         </section>
 
@@ -122,8 +151,10 @@
                 <input type="text" id="form_auto_id" disabled>
                 <label>control_type</label>
                 <input type="text" id="form_control_type" disabled>
+                <label>locator</label>
+                <textarea id="form_locator" rows="4" disabled></textarea>
                 <input type="hidden" id="form_path">
-                <button class="btn primary" onclick="copyPath()" type="button">Copy Path</button>
+                <button class="btn primary" onclick="copyPath()" type="button">Copy Selector</button>
             </form>
         </section>
     </main>
