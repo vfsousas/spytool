@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, jsonify
 import os
 import webbrowser
 import re
+import subprocess
 import logging
 from parse_pywinauto import Parser
 
@@ -129,6 +130,59 @@ def capture_window_by_title_base64(title_keywords):
     if width <= 0 or height <= 0:
         raise RuntimeError("Matched QEMU window has invalid dimensions for capture.")
     return printscreen(region=(int(left), int(top), int(width), int(height)))
+
+
+def capture_linux_window_by_title_base64(title_keywords):
+    """Linux fallback screenshot capture from a visible X11 window title."""
+    if not PYAUTOGUI_AVAILABLE:
+        raise RuntimeError("PyAutoGUI not available for Linux window capture fallback.")
+    if os.name == "nt":
+        raise RuntimeError("Linux window fallback requested on Windows.")
+
+    window_ids = []
+    for keyword in title_keywords:
+        if not keyword:
+            continue
+        try:
+            proc = subprocess.run(
+                ["xdotool", "search", "--name", keyword],
+                capture_output=True,
+                text=True,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError("xdotool not installed for Linux window lookup.") from exc
+        if proc.returncode == 0:
+            ids = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+            if ids:
+                window_ids.extend(ids)
+    if not window_ids:
+        raise RuntimeError("No matching Linux QEMU window found via xdotool.")
+
+    target_id = window_ids[0]
+    try:
+        info = subprocess.run(["xwininfo", "-id", target_id], capture_output=True, text=True)
+    except FileNotFoundError as exc:
+        raise RuntimeError("xwininfo not installed for Linux window geometry.") from exc
+    if info.returncode != 0:
+        raise RuntimeError(f"xwininfo failed for window id {target_id}.")
+
+    x = y = w = h = None
+    for line in info.stdout.splitlines():
+        line = line.strip()
+        if line.startswith("Absolute upper-left X:"):
+            x = int(line.split(":")[1].strip())
+        elif line.startswith("Absolute upper-left Y:"):
+            y = int(line.split(":")[1].strip())
+        elif line.startswith("Width:"):
+            w = int(line.split(":")[1].strip())
+        elif line.startswith("Height:"):
+            h = int(line.split(":")[1].strip())
+
+    if x is None or y is None or w is None or h is None:
+        raise RuntimeError("Failed to resolve Linux window geometry from xwininfo.")
+    if w <= 0 or h <= 0:
+        raise RuntimeError("Resolved Linux QEMU window has invalid dimensions.")
+    return printscreen(region=(x, y, w, h))
 
 
 def parse_screen_position(text):
@@ -560,23 +614,26 @@ def lvgl_screenshot():
             except Exception as vnc_error:
                 logger.warning(f"VNC capture failed, trying local QEMU window fallback: {vnc_error}")
                 try:
-                    # Linux-friendly fallback: capture current X11 desktop frame
-                    img = ScreenshotBackend.capture_x11()
-                    ScreenshotBackend.save_annotated(img, temp_path)
-                    with open(temp_path, "rb") as img_file:
-                        encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
-                    return jsonify({"screenshot": encoded_img, "fallback": "x11_root"})
-                except Exception as x11_error:
-                    try:
+                    if os.name == "nt":
                         fallback_b64 = capture_window_by_title_base64(qemu_titles)
-                        return jsonify({"screenshot": fallback_b64, "fallback": "local_qemu_window"})
-                    except Exception as window_error:
-                        if PYAUTOGUI_AVAILABLE:
-                            # Last fallback: full desktop screenshot
-                            return jsonify({"screenshot": printscreen(), "fallback": "desktop_full"})
+                    else:
+                        fallback_b64 = capture_linux_window_by_title_base64(qemu_titles)
+                    return jsonify({"screenshot": fallback_b64, "fallback": "qemu_window_only"})
+                except Exception as window_error:
+                    try:
+                        # As a strict fallback, crop from root screenshot if tools exist.
+                        img = ScreenshotBackend.capture_x11()
+                        ScreenshotBackend.save_annotated(img, temp_path)
+                        with open(temp_path, "rb") as img_file:
+                            encoded_img = base64.b64encode(img_file.read()).decode("utf-8")
                         raise RuntimeError(
-                            f"{vnc_error} Also failed x11 fallback: {x11_error}. "
-                            f"Also failed window fallback: {window_error}"
+                            f"{vnc_error} Also failed QEMU-window fallback: {window_error}. "
+                            "Root X11 screenshot is available but not QEMU-window-only."
+                        )
+                    except Exception:
+                        raise RuntimeError(
+                            f"{vnc_error} Also failed QEMU-window fallback: {window_error}. "
+                            "Install vncsnapshot, or install xdotool + xwininfo for window-only fallback."
                         ) from window_error
         elif capture_method == "x11":
             img = ScreenshotBackend.capture_x11()
