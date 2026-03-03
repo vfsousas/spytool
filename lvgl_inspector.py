@@ -8,10 +8,13 @@ This module exposes:
 """
 
 import hashlib
+import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
+import time
 from typing import Any, Dict, List, Optional
 
 import cv2
@@ -85,6 +88,93 @@ def _to_primitive(value: Any, depth: int = 0, max_depth: int = 3) -> Any:
 
 
 class ScreenshotBackend:
+    @staticmethod
+    def _read_image_and_cleanup(path: str) -> np.ndarray:
+        image = cv2.imread(path)
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+        if image is None:
+            raise RuntimeError(f"Failed to read screenshot image at {path}.")
+        return image
+
+    @staticmethod
+    def capture_qemu_monitor(host="127.0.0.1", port=55555, timeout=4) -> np.ndarray:
+        ppm_path = os.path.join(tempfile.gettempdir(), "_qemu_monitor_screendump.ppm")
+        try:
+            sock = socket.create_connection((host, int(port)), timeout=timeout)
+        except Exception as exc:
+            raise RuntimeError(f"Could not connect to QEMU monitor at {host}:{port}: {exc}") from exc
+
+        try:
+            sock.settimeout(0.5)
+            try:
+                sock.recv(4096)
+            except Exception:
+                pass
+            cmd = f"screendump {ppm_path}\n".encode("utf-8")
+            sock.sendall(cmd)
+            end_time = time.time() + timeout
+            while time.time() < end_time:
+                if os.path.exists(ppm_path) and os.path.getsize(ppm_path) > 0:
+                    return ScreenshotBackend._read_image_and_cleanup(ppm_path)
+                time.sleep(0.1)
+            raise RuntimeError("Monitor screendump command timed out.")
+        finally:
+            try:
+                sock.close()
+            except Exception:
+                pass
+
+    @staticmethod
+    def _qmp_send(sock: socket.socket, payload: Dict[str, Any], timeout=2) -> Dict[str, Any]:
+        sock.settimeout(timeout)
+        sock.sendall((json.dumps(payload) + "\n").encode("utf-8"))
+        raw = sock.recv(8192).decode("utf-8", errors="ignore")
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except Exception:
+                continue
+            if "return" in data or "error" in data:
+                return data
+        return {}
+
+    @staticmethod
+    def capture_qemu_qmp(socket_path="/tmp/qemu.sock", timeout=4) -> np.ndarray:
+        ppm_path = os.path.join(tempfile.gettempdir(), "_qemu_qmp_screendump.ppm")
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            sock.settimeout(timeout)
+            sock.connect(socket_path)
+            try:
+                sock.recv(4096)
+            except Exception:
+                pass
+            ScreenshotBackend._qmp_send(sock, {"execute": "qmp_capabilities"})
+            resp = ScreenshotBackend._qmp_send(
+                sock, {"execute": "screendump", "arguments": {"filename": ppm_path}}
+            )
+            if "error" in resp:
+                raise RuntimeError(f"QMP screendump error: {resp['error']}")
+            end_time = time.time() + timeout
+            while time.time() < end_time:
+                if os.path.exists(ppm_path) and os.path.getsize(ppm_path) > 0:
+                    return ScreenshotBackend._read_image_and_cleanup(ppm_path)
+                time.sleep(0.1)
+            raise RuntimeError("QMP screendump timed out.")
+        except Exception as exc:
+            raise RuntimeError(f"QMP capture failed at {socket_path}: {exc}") from exc
+        finally:
+            try:
+                sock.close()
+            except Exception:
+                pass
+
     @staticmethod
     def capture_x11(display=":0") -> np.ndarray:
         cmd = ["xwd", "-root", "-silent", "-display", display]

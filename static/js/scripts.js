@@ -161,6 +161,9 @@ function inspectLVGL() {
             capture: captureMethod,
             vnc_host: vncHost,
             vnc_port: parseInt(vncPort),
+            qemu_monitor_host: lvglIp,
+            qemu_monitor_port: 55555,
+            qemu_qmp_socket: "/tmp/qemu.sock",
             qemu_window_titles: ["qemu-system", "qemu", "qemu-system-x86_64"]
         })
     }).then(response => {
@@ -185,6 +188,10 @@ function inspectLVGL() {
             imgElement.src = `data:image/png;base64, ${response.screenshot}`;
             if (response.fallback === "qemu_window_only") {
                 setStatus("VNC capture failed, showing QEMU-window-only fallback screenshot.", "warn");
+            } else if (response.fallback === "qemu_monitor") {
+                setStatus("VNC capture failed, showing QEMU monitor screendump.", "warn");
+            } else if (response.fallback === "qemu_qmp") {
+                setStatus("VNC capture failed, showing QMP screendump.", "warn");
             }
         }
 
