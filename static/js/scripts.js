@@ -30,7 +30,28 @@ function setLoading(isLoading) {
     var loadingIndicator = document.getElementById("loadingIndicator");
     var button = document.getElementById("btn_inspect");
     loadingIndicator.style.display = isLoading ? 'block' : 'none';
-    button.disabled = isLoading;
+    if (!button) {
+        return;
+    }
+    if (isLoading) {
+        button.disabled = true;
+        return;
+    }
+    updateInspectButtonState();
+}
+
+function updateInspectButtonState() {
+    var button = document.getElementById("btn_inspect");
+    if (!button) {
+        return;
+    }
+    if (state.currentMode === "lvgl") {
+        button.disabled = false;
+        return;
+    }
+    var input = document.getElementById("exampleDataList");
+    var selectedValue = input ? input.value.trim() : "";
+    button.disabled = !selectedValue;
 }
 
 function getScale() {
@@ -270,11 +291,17 @@ window.onload = function () {
     
     // Initialize UI mode
     switchUiMode();
+    updateInspectButtonState();
+
+    var windowInput = document.getElementById("exampleDataList");
+    if (windowInput) {
+        windowInput.addEventListener("input", updateInspectButtonState);
+        windowInput.addEventListener("change", updateInspectButtonState);
+    }
 };
 
 function releaseInspectButton() {
-    var button = document.getElementById('btn_inspect');
-    button.disabled = false;
+    updateInspectButtonState();
 }
 
 function copyPath() {
@@ -393,6 +420,7 @@ function switchUiMode() {
         state.currentMode = "windows";
         setStatus("Windows UI mode active", "info");
     }
+    updateInspectButtonState();
 }
 
 function toggleInspector() {
