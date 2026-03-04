@@ -404,25 +404,18 @@ def lvgl_screenshot():
     """
     Capture a screenshot of the running QEMU image.
 
-    Supported capture values (in order of preference for QEMU):
-      qemu_monitor  → QEMU HMP monitor TCP (most reliable, no extra tools)
-      vnc           → VNC snapshot (vncsnapshot / ffmpeg)
-      x11           → X11 root window dump
-      framebuffer   → /dev/fb0 raw read
-      none          → return empty immediately
+    Supported capture values:
+      qemu_monitor  -> QEMU HMP monitor TCP using `screendump` (default)
+      vnc           -> VNC snapshot (requires LVGL optional deps)
+      x11           -> X11 root window dump (requires LVGL optional deps)
+      framebuffer   -> /dev/fb0 raw read (requires LVGL optional deps)
+      none          -> return empty immediately
 
-    Falls back through: QEMU monitor → QMP socket → OS window capture.
+    Fallbacks for qemu_monitor: QMP socket -> OS window capture.
     """
-    if not LVGL_AVAILABLE:
-        return jsonify({"error": "LVGL Inspector not available."}), 500
-
     try:
-        import tempfile
-        import os
-
-        # Get capture method from request
-        data = request.json
-        capture_method = data.get("capture", "vnc")  # default to vnc
+        data = request.get_json(silent=True) or {}
+        capture_method = data.get("capture", "qemu_monitor")
         vnc_host = data.get("vnc_host", "192.168.0.10")
         vnc_port = data.get("vnc_port", 5900)
         qemu_monitor_host = data.get("qemu_monitor_host", "127.0.0.1")
@@ -431,34 +424,44 @@ def lvgl_screenshot():
         fb_device = data.get("fb_device", "/dev/fb0")
         qemu_titles = data.get("qemu_window_titles", ["qemu", "qemu-system", "qemu-system-x86_64"])
 
-        # ── none ────────────────────────────────────────────────────────
         if capture_method == "none":
             return jsonify({"screenshot": ""})
 
-        # ── x11 ─────────────────────────────────────────────────────────
         if capture_method == "x11":
+            if not LVGL_AVAILABLE:
+                return jsonify({"error": "LVGL Inspector not available for x11 capture."}), 500
             img = ScreenshotBackend.capture_x11()
             return jsonify({"screenshot": _ndarray_to_b64(img)})
 
-        # ── framebuffer ──────────────────────────────────────────────────
         if capture_method == "framebuffer":
+            if not LVGL_AVAILABLE:
+                return jsonify({"error": "LVGL Inspector not available for framebuffer capture."}), 500
             img = ScreenshotBackend.capture_framebuffer(fb_device)
             return jsonify({"screenshot": _ndarray_to_b64(img)})
 
-        # ── qemu_monitor (direct) ────────────────────────────────────────
         if capture_method == "qemu_monitor":
             try:
-                img = ScreenshotBackend.capture_qemu_monitor(host=monitor_host, port=monitor_port)
-                return jsonify({"screenshot": _ndarray_to_b64(img)})
+                b64 = capture_qemu_monitor_screendump_base64(
+                    host=qemu_monitor_host,
+                    port=int(qemu_monitor_port),
+                    ppm_path=data.get("qemu_screendump_path", "/tmp/screenshot.ppm"),
+                    output_png=_qemu_png_output_path(),
+                )
+                return jsonify({"screenshot": b64, "image_url": _qemu_png_url()})
             except Exception as mon_err:
-                logger.warning(f"QEMU monitor capture failed: {mon_err}")
-                # fallback → QMP socket
+                logger.warning(f"QEMU monitor screendump failed: {mon_err}")
+                if not LVGL_AVAILABLE:
+                    return jsonify({
+                        "error": (
+                            f"QEMU monitor screendump failed: {mon_err}. "
+                            "Install LVGL optional dependencies for extra fallbacks."
+                        )
+                    }), 500
                 try:
-                    img = ScreenshotBackend.capture_qemu_qmp(socket_path=qmp_socket)
+                    img = ScreenshotBackend.capture_qemu_qmp(socket_path=qemu_qmp_socket)
                     return jsonify({"screenshot": _ndarray_to_b64(img), "fallback": "qemu_qmp"})
                 except Exception as qmp_err:
-                    logger.warning(f"QMP capture failed: {qmp_err}")
-                    # fallback → OS window
+                    logger.warning(f"QMP fallback failed: {qmp_err}")
                     try:
                         if os.name == "nt":
                             b64 = capture_window_by_title_base64(qemu_titles)
@@ -476,26 +479,24 @@ def lvgl_screenshot():
                             )
                         }), 500
 
-        # ── vnc ──────────────────────────────────────────────────────────
         if capture_method == "vnc":
+            if not LVGL_AVAILABLE:
+                return jsonify({"error": "LVGL Inspector not available for vnc capture."}), 500
             try:
                 img = ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
                 return jsonify({"screenshot": _ndarray_to_b64(img)})
             except Exception as vnc_err:
                 logger.warning(f"VNC capture failed: {vnc_err}")
-                # fallback → monitor
                 try:
-                    img = ScreenshotBackend.capture_qemu_monitor(host=monitor_host, port=monitor_port)
+                    img = ScreenshotBackend.capture_qemu_monitor(host=qemu_monitor_host, port=qemu_monitor_port)
                     return jsonify({"screenshot": _ndarray_to_b64(img), "fallback": "qemu_monitor"})
                 except Exception as mon_err:
                     logger.warning(f"Monitor fallback failed: {mon_err}")
-                    # fallback → QMP
                     try:
-                        img = ScreenshotBackend.capture_qemu_qmp(socket_path=qmp_socket)
+                        img = ScreenshotBackend.capture_qemu_qmp(socket_path=qemu_qmp_socket)
                         return jsonify({"screenshot": _ndarray_to_b64(img), "fallback": "qemu_qmp"})
                     except Exception as qmp_err:
                         logger.warning(f"QMP fallback failed: {qmp_err}")
-                        # fallback → OS window
                         try:
                             if os.name == "nt":
                                 b64 = capture_window_by_title_base64(qemu_titles)
@@ -517,6 +518,20 @@ def lvgl_screenshot():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/qemu/monitor/screenshot", methods=["GET", "POST"])
+def qemu_monitor_screenshot():
+    try:
+        data = request.get_json(silent=True) or {}
+        b64 = capture_qemu_monitor_screendump_base64(
+            host=data.get("qemu_monitor_host", "127.0.0.1"),
+            port=int(data.get("qemu_monitor_port", 55555)),
+            ppm_path=data.get("qemu_screendump_path", "/tmp/screenshot.ppm"),
+            output_png=_qemu_png_output_path(),
+        )
+        return jsonify({"screenshot": b64, "image_url": _qemu_png_url()})
+    except Exception as e:
+        logger.error(f"QEMU monitor screenshot error: {e}")
+        return jsonify({"error": str(e)}), 500
 # ─────────────────────────────────────────────
 # Error handler
 # ─────────────────────────────────────────────

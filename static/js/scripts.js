@@ -43,6 +43,27 @@ function getScale() {
     return { scaleX: scaleX || 1, scaleY: scaleY || 1 };
 }
 
+function applyScreenshotResponse(data) {
+    var imgElement = document.getElementById("screenshot");
+    var placeholder = document.getElementById("screenshotPlaceholder");
+    if (!imgElement) {
+        return;
+    }
+    if (data.image_url) {
+        imgElement.src = data.image_url;
+    } else if (data.screenshot) {
+        imgElement.src = `data:image/png;base64, ${data.screenshot}`;
+    } else if (data.printscreen) {
+        imgElement.src = `data:image/png;base64, ${data.printscreen}`;
+    } else {
+        return;
+    }
+    imgElement.style.display = "block";
+    if (placeholder) {
+        placeholder.style.display = "none";
+    }
+}
+
 function inspect() {
     // Check current mode to determine which inspection to perform
     if (state.currentMode === "lvgl") {
@@ -74,8 +95,7 @@ function inspect() {
             state.windowRect = data.window_rect || null;
             localStorage.setItem('inspect', JSON.stringify(data.tree));
             displayTree(data.tree);
-            var imgElement = document.getElementById("screenshot");
-            imgElement.src = `data:image/png;base64, ${data.printscreen}`;
+            applyScreenshotResponse(data);
             var container = document.getElementById('container');
             container.style.display = 'grid';
             success = true;
@@ -382,8 +402,7 @@ function captureLvglScreenshot() {
             return response.json();
         })
         .then(data => {
-            var imgElement = document.getElementById("screenshot");
-            imgElement.src = `data:image/png;base64, ${data.printscreen}`;
+            applyScreenshotResponse(data);
             var container = document.getElementById('container');
             container.style.display = 'grid';
             setStatus("QEMU screenshot captured successfully", "ok");
@@ -420,8 +439,7 @@ function inspectLvgl() {
             state.windowRect = data.window_rect || null;
             localStorage.setItem('inspect', JSON.stringify(data.tree));
             displayTree(data.tree);
-            var imgElement = document.getElementById("screenshot");
-            imgElement.src = `data:image/png;base64, ${data.printscreen}`;
+            applyScreenshotResponse(data);
             var container = document.getElementById('container');
             container.style.display = 'grid';
             success = true;

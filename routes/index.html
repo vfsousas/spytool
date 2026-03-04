@@ -149,8 +149,8 @@
                 <p>Hold <span class="kbd">Ctrl</span> and move to snap the closest node.</p>
             </div>
             <div id="img_content" class="canvas">
-                <img id="screenshot" alt="Captured QEMU screenshot" style="display:none;" />
-                <div id="screenshotPlaceholder" class="screenshot-placeholder">
+                <img id="screenshot" alt="Captured QEMU screenshot" src="{{ qemu_image_url or '' }}" style="{% if qemu_image_url %}display:block;{% else %}display:none;{% endif %}" />
+                <div id="screenshotPlaceholder" class="screenshot-placeholder" style="{% if qemu_image_url %}display:none;{% endif %}">
                     <span>No screenshot captured</span>
                 </div>
             </div>
