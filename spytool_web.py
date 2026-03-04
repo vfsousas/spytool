@@ -11,6 +11,7 @@ import subprocess
 import logging
 import socket
 import time
+import shutil
 from parse_pywinauto import Parser
 
 try:
@@ -130,9 +131,47 @@ def capture_qemu_monitor_screendump_base64(
 
 def getWindows():
     try:
-        import pygetwindow as gw
-        windows = gw.getAllWindows()
-        return [w.title for w in windows if w.title.strip() and not w.title.startswith("Program Manager")]
+        if os.name == "nt":
+            import pygetwindow as gw
+            windows = gw.getAllWindows()
+            return [w.title for w in windows if w.title.strip() and not w.title.startswith("Program Manager")]
+
+        titles = []
+        if shutil.which("wmctrl"):
+            proc = subprocess.run(["wmctrl", "-l"], capture_output=True, text=True, timeout=3)
+            if proc.returncode == 0:
+                for line in proc.stdout.splitlines():
+                    parts = line.split(None, 3)
+                    if len(parts) == 4:
+                        title = parts[3].strip()
+                        if title:
+                            titles.append(title)
+        elif shutil.which("xdotool"):
+            proc = subprocess.run(
+                ["xdotool", "search", "--onlyvisible", "--name", ".*"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if proc.returncode == 0:
+                for wid in proc.stdout.splitlines():
+                    wid = wid.strip()
+                    if not wid:
+                        continue
+                    name_proc = subprocess.run(
+                        ["xdotool", "getwindowname", wid],
+                        capture_output=True,
+                        text=True,
+                        timeout=2,
+                    )
+                    if name_proc.returncode == 0:
+                        title = name_proc.stdout.strip()
+                        if title:
+                            titles.append(title)
+
+        # De-duplicate while preserving order
+        unique_titles = list(dict.fromkeys(titles))
+        return unique_titles
     except Exception as e:
         logger.error(f"Error getting windows: {e}")
         return []
