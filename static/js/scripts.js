@@ -361,19 +361,25 @@ function findNodeByCoordinates(node, targetX, targetY) {
 }
 
 function switchUiMode() {
-    const mode = document.getElementById("uiMode").value;
-    const windowsControls = document.getElementById("windowsControls");
+    const modeSelect = document.getElementById("inspectorType");
+    const mode = modeSelect ? modeSelect.value : "opencv";
+    const windowsControls = document.getElementById("opencvControls");
     const lvglControls = document.getElementById("lvglControls");
     const inspectBtn = document.getElementById("btn_inspect");
     const lvglInspectBtn = document.getElementById("btn_lvgl_inspect");
-    const status = document.getElementById("status");
+
+    if (!windowsControls || !lvglControls || !inspectBtn) {
+        return;
+    }
 
     if (mode === "lvgl") {
         // Switch to LVGL mode
         windowsControls.style.display = "none";
         lvglControls.style.display = "block";
-        inspectBtn.style.display = "none";
-        lvglInspectBtn.style.display = "inline-block";
+        inspectBtn.style.display = "inline-block";
+        if (lvglInspectBtn) {
+            lvglInspectBtn.style.display = "none";
+        }
         state.currentMode = "lvgl";
         setStatus("LVGL/QEMU mode active", "info");
     } else {
@@ -381,10 +387,16 @@ function switchUiMode() {
         windowsControls.style.display = "block";
         lvglControls.style.display = "none";
         inspectBtn.style.display = "inline-block";
-        lvglInspectBtn.style.display = "none";
+        if (lvglInspectBtn) {
+            lvglInspectBtn.style.display = "none";
+        }
         state.currentMode = "windows";
         setStatus("Windows UI mode active", "info");
     }
+}
+
+function toggleInspector() {
+    switchUiMode();
 }
 
 function captureLvglScreenshot() {

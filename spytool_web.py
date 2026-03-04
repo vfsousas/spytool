@@ -3,7 +3,7 @@ import io
 import json
 import tempfile
 from time import sleep
-from flask import Flask, render_template, request, jsonify, url_for
+from flask import Flask, render_template, request, jsonify, url_for, Response
 import os
 import webbrowser
 import re
@@ -315,6 +315,11 @@ def index():
     except Exception as e:
         logger.error(f"Error in index route: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return Response(status=204)
 
 
 @app.route("/element/<idx>", methods=["GET"])
