@@ -359,14 +359,14 @@ def inspect(window):
 # Routes — LVGL inspector
 # ─────────────────────────────────────────────
 
-@app.route("/lvgl/inspect", methods=["POST"])
+@app.route("/lvgl/inspect", methods=["GET", "POST"])
 def lvgl_inspect():
     """Return the LVGL widget tree as a structured JSON object."""
     if not LVGL_AVAILABLE:
         return jsonify({"error": "LVGL Inspector not available. Required packages not installed."}), 500
     try:
-        # Get parameters from the request
-        data = request.json
+        # Accept both JSON body (POST) and query string (GET)
+        data = request.get_json(silent=True) or request.args.to_dict()
         element = data.get("element", "root")
         max_depth = data.get("max_depth", None)
         ip = data.get("ip", "192.168.0.10")
@@ -404,7 +404,7 @@ def lvgl_inspect():
         return jsonify({"error": str(e)}), 500
 
 
-@app.route("/lvgl/screenshot", methods=["POST"])
+@app.route("/lvgl/screenshot", methods=["GET", "POST"])
 def lvgl_screenshot():
     """
     Capture a screenshot of the running QEMU image.
@@ -526,7 +526,7 @@ def lvgl_screenshot():
 @app.route("/qemu/monitor/screenshot", methods=["GET", "POST"])
 def qemu_monitor_screenshot():
     try:
-        data = request.get_json(silent=True) or {}
+        data = request.get_json(silent=True) or request.args.to_dict()
         b64 = capture_qemu_monitor_screendump_base64(
             host=data.get("qemu_monitor_host", "127.0.0.1"),
             port=int(data.get("qemu_monitor_port", 55555)),
