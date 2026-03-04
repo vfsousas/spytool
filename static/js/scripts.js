@@ -501,6 +501,71 @@ function captureLvglScreenshot() {
         });
 }
 
+function findLvglVisual() {
+    if (state.currentMode !== "lvgl") {
+        setStatus("Switch to LVGL mode to use visual matching.", "warn");
+        return;
+    }
+
+    var templatePathEl = document.getElementById("lvglTemplatePath");
+    var thresholdEl = document.getElementById("lvglMatchThreshold");
+    var templatePath = templatePathEl ? templatePathEl.value.trim() : "";
+    var threshold = thresholdEl ? parseFloat(thresholdEl.value || "0.8") : 0.8;
+
+    if (!templatePath) {
+        setStatus("Enter a template path first.", "warn");
+        return;
+    }
+    if (isNaN(threshold) || threshold < 0 || threshold > 1) {
+        setStatus("Match threshold must be between 0 and 1.", "warn");
+        return;
+    }
+
+    setLoading(true);
+    setStatus("Running visual match...", "info");
+    var payload = getLvglRequestPayload();
+    payload.template_path = templatePath;
+    payload.threshold = threshold;
+
+    fetch('/lvgl/find-visual', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+        .then(response => response.json().then(data => ({ ok: response.ok, data: data })))
+        .then(result => {
+            if (!result.ok) {
+                throw new Error(result.data.error || "Visual match failed");
+            }
+            var data = result.data;
+            if (!data.matched) {
+                setStatus(`No match above threshold (${data.confidence.toFixed(3)}).`, "warn");
+                return;
+            }
+            var matchNode = {
+                rect: data.rect,
+                center: data.center,
+                attributes: {
+                    title: "Visual Match",
+                    auto_id: "",
+                    control_type: "Template",
+                    confidence: data.confidence,
+                    template_path: templatePath
+                }
+            };
+            highlightDiv(matchNode);
+            updateAttributes(matchNode);
+            setStatus(`Visual match found (${data.confidence.toFixed(3)}).`, "ok");
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            setStatus(error.message || "Visual match failed", "error");
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+}
+
 function inspectLvgl() {
     setLoading(true);
     setStatus("Inspecting LVGL application...", "info");

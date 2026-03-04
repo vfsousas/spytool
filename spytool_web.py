@@ -68,6 +68,61 @@ def _ndarray_to_b64(img) -> str:
     return data
 
 
+def _b64_to_ndarray(image_b64: str):
+    if not OPENCV_AVAILABLE:
+        raise RuntimeError("OpenCV is required for visual matching.")
+    if not image_b64:
+        raise ValueError("Empty base64 image payload.")
+    encoded = image_b64.split(",", 1)[-1]
+    raw = base64.b64decode(encoded)
+    arr = np.frombuffer(raw, dtype=np.uint8)
+    image = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+    if image is None:
+        raise ValueError("Could not decode base64 image.")
+    return image
+
+
+def _capture_lvgl_ndarray(data):
+    capture_method = data.get("capture", "qemu_monitor")
+    vnc_host = data.get("vnc_host", "192.168.0.10")
+    vnc_port = data.get("vnc_port", 5900)
+    qemu_monitor_host = data.get("qemu_monitor_host", "127.0.0.1")
+    qemu_monitor_port = data.get("qemu_monitor_port", 55555)
+    qemu_qmp_socket = data.get("qemu_qmp_socket", "/tmp/qemu.sock")
+    fb_device = data.get("fb_device", "/dev/fb0")
+
+    if capture_method == "x11":
+        if not LVGL_AVAILABLE:
+            raise RuntimeError("LVGL Inspector not available for x11 capture.")
+        return ScreenshotBackend.capture_x11()
+
+    if capture_method == "framebuffer":
+        if not LVGL_AVAILABLE:
+            raise RuntimeError("LVGL Inspector not available for framebuffer capture.")
+        return ScreenshotBackend.capture_framebuffer(fb_device)
+
+    if capture_method == "vnc":
+        if not LVGL_AVAILABLE:
+            raise RuntimeError("LVGL Inspector not available for vnc capture.")
+        return ScreenshotBackend.capture_vnc(vnc_host, vnc_port)
+
+    if capture_method == "qemu_monitor":
+        screenshot_b64 = capture_qemu_monitor_screendump_base64(
+            host=qemu_monitor_host,
+            port=int(qemu_monitor_port),
+            ppm_path=data.get("qemu_screendump_path", "/tmp/screenshot.ppm"),
+            output_png=_qemu_png_output_path(),
+        )
+        return _b64_to_ndarray(screenshot_b64)
+
+    if capture_method == "qemu_qmp":
+        if not LVGL_AVAILABLE:
+            raise RuntimeError("LVGL Inspector not available for qemu_qmp capture.")
+        return ScreenshotBackend.capture_qemu_qmp(socket_path=qemu_qmp_socket)
+
+    raise ValueError(f"Unknown capture method: {capture_method}")
+
+
 def open_browser():
     webbrowser.open("http://127.0.0.1:5050/")
 
@@ -579,6 +634,68 @@ def qemu_monitor_screenshot():
 # ─────────────────────────────────────────────
 # Error handler
 # ─────────────────────────────────────────────
+
+@app.route("/lvgl/find-visual", methods=["GET", "POST"])
+def lvgl_find_visual():
+    """
+    Match a template against the current LVGL/QEMU screenshot.
+
+    Request body/query supports:
+      template_base64: required unless template_path is provided
+      template_path: local path to template image
+      screen_base64: optional; if omitted, capture settings are used
+      threshold: optional float [0..1], default 0.8
+      capture + capture options: same keys as /lvgl/screenshot
+    """
+    if not OPENCV_AVAILABLE:
+        return jsonify({"error": "OpenCV not available."}), 500
+    try:
+        data = request.get_json(silent=True) or request.args.to_dict()
+        threshold = float(data.get("threshold", 0.8))
+        if threshold < 0.0 or threshold > 1.0:
+            return jsonify({"error": "threshold must be between 0 and 1"}), 400
+
+        template = None
+        if data.get("template_base64"):
+            template = _b64_to_ndarray(data.get("template_base64"))
+        elif data.get("template_path"):
+            template = cv2.imread(data.get("template_path"))
+            if template is None:
+                return jsonify({"error": f"Could not read template_path: {data.get('template_path')}"}), 400
+        else:
+            return jsonify({"error": "Provide template_base64 or template_path"}), 400
+
+        if data.get("screen_base64"):
+            screen = _b64_to_ndarray(data.get("screen_base64"))
+        else:
+            screen = _capture_lvgl_ndarray(data)
+
+        template_h, template_w = template.shape[:2]
+        screen_h, screen_w = screen.shape[:2]
+        if template_w > screen_w or template_h > screen_h:
+            return jsonify({
+                "error": "Template image is larger than the screenshot.",
+                "template_size": {"width": template_w, "height": template_h},
+                "screen_size": {"width": screen_w, "height": screen_h},
+            }), 400
+
+        result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, max_loc = cv2.minMaxLoc(result)
+        x, y = int(max_loc[0]), int(max_loc[1])
+        w, h = int(template_w), int(template_h)
+
+        return jsonify({
+            "matched": bool(max_val >= threshold),
+            "confidence": float(max_val),
+            "threshold": threshold,
+            "rect": {"Left": x, "Top": y, "Right": x + w, "Bottom": y + h},
+            "center": {"X": x + (w // 2), "Y": y + (h // 2)},
+            "size": {"width": w, "height": h},
+        })
+    except Exception as e:
+        logger.error(f"LVGL visual matching error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):

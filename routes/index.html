@@ -65,6 +65,16 @@
                     <option value="none">None (tree only)</option>
                 </select>
             </div>
+            <div class="lvgl-row">
+                <div class="control-group">
+                    <label for="lvglTemplatePath">Template Path</label>
+                    <input type="text" id="lvglTemplatePath" placeholder="/path/to/template.png">
+                </div>
+                <div class="control-group">
+                    <label for="lvglMatchThreshold">Match Threshold</label>
+                    <input type="number" id="lvglMatchThreshold" value="0.8" min="0" max="1" step="0.01">
+                </div>
+            </div>
 
             <!-- QEMU Monitor settings -->
             <div id="qemuMonitorSettings" class="capture-settings">
@@ -101,6 +111,7 @@
 
         <div class="control-actions">
             <button id="btn_inspect" class="btn primary" onclick="inspect()" type="button" disabled>Inspect</button>
+            <button class="btn ghost" onclick="findLvglVisual()" type="button">Visual Match</button>
             <button class="btn ghost" type="button" onclick="window.location.reload()">Reload List</button>
         </div>
     </section>
