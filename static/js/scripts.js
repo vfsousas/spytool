@@ -85,6 +85,42 @@ function applyScreenshotResponse(data) {
     }
 }
 
+function getLvglRequestPayload() {
+    var captureEl = document.getElementById("lvglCaptureMethod");
+    var lvglIpEl = document.getElementById("lvglIp");
+    var lvglPortEl = document.getElementById("lvglPort");
+    var vncHostEl = document.getElementById("vncHost");
+    var vncPortEl = document.getElementById("vncPort");
+    var monitorHostEl = document.getElementById("qemuMonitorHost");
+    var monitorPortEl = document.getElementById("qemuMonitorPort");
+    var qmpSocketEl = document.getElementById("qemuQmpSocket");
+
+    return {
+        capture: captureEl ? captureEl.value : "qemu_monitor",
+        ip: lvglIpEl ? lvglIpEl.value : "192.168.0.10",
+        port: lvglPortEl ? parseInt(lvglPortEl.value || "8080", 10) : 8080,
+        vnc_host: vncHostEl ? vncHostEl.value : "192.168.0.10",
+        vnc_port: vncPortEl ? parseInt(vncPortEl.value || "5900", 10) : 5900,
+        qemu_monitor_host: monitorHostEl ? monitorHostEl.value : "127.0.0.1",
+        qemu_monitor_port: monitorPortEl ? parseInt(monitorPortEl.value || "55555", 10) : 55555,
+        qemu_qmp_socket: qmpSocketEl ? qmpSocketEl.value : "/tmp/qemu.sock"
+    };
+}
+
+function onCaptureMethodChange() {
+    var methodEl = document.getElementById("lvglCaptureMethod");
+    var qemuSettings = document.getElementById("qemuMonitorSettings");
+    var vncSettings = document.getElementById("vncSettings");
+    var method = methodEl ? methodEl.value : "qemu_monitor";
+
+    if (qemuSettings) {
+        qemuSettings.style.display = method === "qemu_monitor" ? "block" : "none";
+    }
+    if (vncSettings) {
+        vncSettings.style.display = method === "vnc" ? "block" : "none";
+    }
+}
+
 function inspect() {
     // Check current mode to determine which inspection to perform
     if (state.currentMode === "lvgl") {
@@ -298,6 +334,7 @@ window.onload = function () {
         windowInput.addEventListener("input", updateInspectButtonState);
         windowInput.addEventListener("change", updateInspectButtonState);
     }
+    onCaptureMethodChange();
 };
 
 function releaseInspectButton() {
@@ -432,7 +469,12 @@ function captureLvglScreenshot() {
     setStatus("Capturing QEMU screenshot…", "info");
     var startTime = performance.now();
 
-    fetch('/qemu/monitor/screenshot')
+    var payload = getLvglRequestPayload();
+    fetch('/lvgl/screenshot', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
         .then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
@@ -461,28 +503,73 @@ function captureLvglScreenshot() {
 
 function inspectLvgl() {
     setLoading(true);
-    setStatus("Inspecting LVGL application…", "info");
+    setStatus("Inspecting LVGL application...", "info");
     var startTime = performance.now();
     var success = false;
+    var payload = getLvglRequestPayload();
 
-    fetch('/lvgl/inspect')
-        .then(response => {
+    Promise.allSettled([
+        fetch('/lvgl/inspect', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }).then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
                     throw new Error(data.error || "LVGL inspection failed");
                 });
             }
             return response.json();
+        }),
+        fetch('/lvgl/screenshot', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        }).then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || "LVGL screenshot failed");
+                });
+            }
+            return response.json();
         })
-        .then(data => {
-            state.tree = data.tree;
-            state.windowRect = data.window_rect || null;
-            localStorage.setItem('inspect', JSON.stringify(data.tree));
-            displayTree(data.tree);
-            applyScreenshotResponse(data);
-            var container = document.getElementById('container');
-            container.style.display = 'grid';
-            success = true;
+    ])
+        .then(results => {
+            var inspectResult = results[0];
+            var screenshotResult = results[1];
+            var inspectError = null;
+            var screenshotError = null;
+
+            if (inspectResult.status === "fulfilled") {
+                var inspectData = inspectResult.value;
+                state.tree = inspectData.tree;
+                state.windowRect = inspectData.window_rect || null;
+                localStorage.setItem('inspect', JSON.stringify(inspectData.tree));
+                displayTree(inspectData.tree);
+                success = true;
+            } else {
+                inspectError = inspectResult.reason;
+            }
+
+            if (screenshotResult.status === "fulfilled") {
+                applyScreenshotResponse(screenshotResult.value);
+                success = true;
+            } else {
+                screenshotError = screenshotResult.reason;
+            }
+
+            if (success) {
+                var container = document.getElementById('container');
+                container.style.display = 'grid';
+                if (inspectError || screenshotError) {
+                    var partialError = inspectError || screenshotError;
+                    setStatus(`Partial success: ${partialError.message || partialError}`, "warn");
+                }
+                return;
+            }
+
+            var combined = `${inspectError ? (inspectError.message || inspectError) : ""} ${screenshotError ? (screenshotError.message || screenshotError) : ""}`.trim();
+            throw new Error(combined || "LVGL inspection failed");
         })
         .catch(error => {
             console.error('Error:', error);

@@ -57,28 +57,8 @@
             </div>
             <div class="control-group">
                 <label for="lvglCaptureMethod">Capture Method</label>
-                <select id="lvglCaptureMethod">
-                    <option value="vnc" selected>VNC (QEMU/Linux)</option>
-                    <option value="none">None (tree only)</option>
-                    <option value="x11">X11 (Linux Desktop)</option>
-                    <option value="framebuffer">Framebuffer</option>
-                </select>
-            </div>
-            <div id="vncSettings">
-                <div class="control-group">
-                    <label for="vncHost">VNC Host</label>
-                    <input type="text" id="vncHost" value="192.168.0.10">
-                </div>
-                <div class="control-group">
-                    <label for="lvglPort">LVGL Port</label>
-                    <input type="number" id="lvglPort" value="8080">
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label for="lvglCaptureMethod">Capture Method</label>
                 <select id="lvglCaptureMethod" onchange="onCaptureMethodChange()">
-                    <option value="qemu_monitor">QEMU Monitor TCP (recommended)</option>
+                    <option value="qemu_monitor">Telnet (QEMU Monitor)</option>
                     <option value="vnc">VNC</option>
                     <option value="x11">X11 (Linux Desktop)</option>
                     <option value="framebuffer">Framebuffer (/dev/fb0)</option>
@@ -90,11 +70,11 @@
             <div id="qemuMonitorSettings" class="capture-settings">
                 <div class="lvgl-row">
                     <div class="control-group">
-                        <label for="qemuMonitorHost">Monitor Host</label>
+                        <label for="qemuMonitorHost">Telnet Host</label>
                         <input type="text" id="qemuMonitorHost" value="127.0.0.1" placeholder="127.0.0.1">
                     </div>
                     <div class="control-group">
-                        <label for="qemuMonitorPort">Monitor Port</label>
+                        <label for="qemuMonitorPort">Telnet Port</label>
                         <input type="number" id="qemuMonitorPort" value="55555">
                     </div>
                 </div>
