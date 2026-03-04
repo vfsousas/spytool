@@ -3,12 +3,14 @@ import io
 import json
 import tempfile
 from time import sleep
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 import os
 import webbrowser
 import re
 import subprocess
 import logging
+import socket
+import time
 from parse_pywinauto import Parser
 
 try:
@@ -67,6 +69,63 @@ def _ndarray_to_b64(img) -> str:
 
 def open_browser():
     webbrowser.open("http://127.0.0.1:5050/")
+
+
+def _qemu_png_output_path() -> str:
+    return os.path.join(app.static_folder, "img", "qemu_screenshot.png")
+
+
+def _qemu_png_url():
+    path = _qemu_png_output_path()
+    if not os.path.exists(path):
+        return None
+    return url_for("static", filename="img/qemu_screenshot.png", v=int(os.path.getmtime(path)))
+
+
+def capture_qemu_monitor_screendump_base64(
+    host: str = "127.0.0.1",
+    port: int = 55555,
+    ppm_path: str = "/tmp/screenshot.ppm",
+    output_png: str = None,
+    timeout: float = 5.0,
+) -> str:
+    """
+    Use QEMU monitor TCP to run `screendump`, convert the PPM to PNG, and return PNG as base64.
+    """
+    output_png = output_png or _qemu_png_output_path()
+    os.makedirs(os.path.dirname(output_png), exist_ok=True)
+
+    with socket.create_connection((host, int(port)), timeout=timeout) as sock:
+        sock.settimeout(timeout)
+        try:
+            sock.recv(4096)
+        except Exception:
+            pass
+        sock.sendall(f"screendump {ppm_path}\n".encode("utf-8"))
+        end_time = time.time() + timeout
+        buffer = b""
+        while time.time() < end_time:
+            try:
+                chunk = sock.recv(4096)
+                if not chunk:
+                    break
+                buffer += chunk
+                if b"(qemu)" in buffer:
+                    break
+            except socket.timeout:
+                break
+
+    if not os.path.exists(ppm_path):
+        raise RuntimeError(f"QEMU screendump did not create: {ppm_path}")
+
+    try:
+        from PIL import Image
+        with Image.open(ppm_path) as img:
+            img.save(output_png, format="PNG")
+    except Exception as exc:
+        raise RuntimeError(f"Failed to convert PPM to PNG: {exc}") from exc
+
+    return _img_to_b64(output_png)
 
 
 def getWindows():
@@ -248,7 +307,11 @@ def _inspect_with_pywinauto(window_title):
 @app.route("/")
 def index():
     try:
-        return render_template("index.html", windows_list=getWindows())
+        return render_template(
+            "index.html",
+            windows_list=getWindows(),
+            qemu_image_url=_qemu_png_url(),
+        )
     except Exception as e:
         logger.error(f"Error in index route: {e}")
         return jsonify({"error": str(e)}), 500
